@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "domdb"
+version = "0.1.0"
+description = "Tools for citing Danish judicial verdicts in LaTeX"
+authors = ["evidlabel <95282593+evidlabel@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+requests = "^2.32.3"
+bibtexparser = "^1.2.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.0.0"
+pytest-cov = "^3.0.0"
+pytest-mock = "^3.10.0"
+black = "^23.0.0"
+flake8 = "^6.0.0"
+mkdocs = "^1.5.3"
+mkdocs-material = "^9.5.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+domdb = "domdb.cli:main"
