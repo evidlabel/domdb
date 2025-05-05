@@ -70,6 +70,6 @@ MIT License
 
 ## Disclaimer
 
-`domdb` is a tool for converting publicly available Danish legal documents into BibTeX format for use in LaTeX. It does not provide legal advice or interpret legal content. The tool processes and represents data from `domstoldatabasen.dk` which is a public source, without modification to the original content. Users are responsible for verifying the accuracy and applicability of the data for their purposes.
+`domdb` is a tool for converting publicly available Danish legal documents into BibTeX format for use in LaTeX. It does not provide legal advice or interpret legal content. The tool processes and represents data from `domsdatabasen.dk` which is a public source, without modification to the original content. Users are responsible for verifying the accuracy and applicability of the data for their purposes.
 `domdb` does not publish the content of the verdicts because they may be subject to modification, in particular through updated anonymization. If you need the content of the verdicts, apply for API access. 
 
