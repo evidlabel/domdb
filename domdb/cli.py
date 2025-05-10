@@ -3,6 +3,7 @@ from typing import Optional
 from domdb.download_verdicts import CASES_DIR, load_next_batch
 from domdb.json2bib import main as json2bib_main
 
+
 def create_parser() -> argparse.ArgumentParser:
     """Create the main CLI parser with subcommands."""
     parser = argparse.ArgumentParser(
@@ -12,7 +13,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     # Download verdicts subcommand
     download_parser = subparsers.add_parser(
-        "download-verdicts",
+        "download",
         help="Download verdicts from domsdatabasen.dk",
     )
     download_parser.add_argument(
@@ -51,6 +52,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     return parser
 
+
 def main(args: Optional[list] = None) -> None:
     """Main CLI entry point."""
     parser = create_parser()
@@ -60,7 +62,7 @@ def main(args: Optional[list] = None) -> None:
         parser.print_help()
         exit(1)
 
-    if args.command == "download-verdicts":
+    if args.command == "download":
         try:
             count = load_next_batch(directory=args.directory)
             print(f"Successfully fetched {count} cases")
@@ -69,6 +71,7 @@ def main(args: Optional[list] = None) -> None:
             exit(1)
     elif args.command == "json2bib":
         json2bib_main(args)
+
 
 if __name__ == "__main__":
     main()
