@@ -1,7 +1,7 @@
 import argparse
 from typing import Optional
-from domdb.download_verdicts import CASES_DIR, load_next_batch
-from domdb.json2bib import main as json2bib_main
+from domdb.core.download_verdicts import CASES_DIR, load_next_batch
+from domdb.core.json2bib import main as json2bib_main
 
 
 def create_parser() -> argparse.ArgumentParser:

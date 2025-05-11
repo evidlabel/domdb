@@ -48,21 +48,11 @@ Run tests:
 poetry run pytest --cov=domdb
 ```
 
-Format code:
-```sh
-poetry run black .
-```
-
-Lint code:
-```sh
-poetry run flake8 .
-```
-
 Serve documentation locally:
 ```sh
 poetry run mkdocs serve
 ```
-Open your browser to `http://localhost:8000` to preview the documentation.
+
 
 ## License
 MIT License

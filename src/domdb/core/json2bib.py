@@ -5,7 +5,7 @@ import json
 import os
 from datetime import datetime
 from typing import List, Optional
-from domdb.download_verdicts import CASES_DIR
+from domdb.core.download_verdicts import CASES_DIR
 import bibtexparser as bib
 
 
@@ -91,6 +91,6 @@ def main(args=None):
 
 
 if __name__ == "__main__":
-    from domdb.cli import main as cli_main
+    from src.cli.cli import main as cli_main
 
     cli_main()

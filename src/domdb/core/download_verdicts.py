@@ -62,7 +62,7 @@ def get_sager(token: str, page_number: int = 1, per_page: int = 100) -> List[dic
         response = requests.get(url, headers=headers, params=params, timeout=10)
         response.raise_for_status()
         return response.json()
-    except requests.exceptions.RequestException as e:
+    except Exception as e:
         raise DownloadError(f"Failed to fetch cases: {str(e)}")
 
 
