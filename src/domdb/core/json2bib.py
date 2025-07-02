@@ -4,16 +4,14 @@ import glob
 import json
 import os
 from datetime import datetime
-from typing import List, Optional
-from domdb.core.download_verdicts import CASES_DIR
 import bibtexparser as bib
-
+import logging
 
 class ConversionError(Exception):
     """Custom exception for conversion errors."""
-
     pass
 
+logger = logging.getLogger(__name__)
 
 def create_bib_entry(case: dict) -> dict:
     """Create a BibTeX entry from a case dictionary."""
@@ -42,7 +40,7 @@ def create_bib_entry(case: dict) -> dict:
         case_number = case.get("courtCaseNumber", "unknown")
         entry_id = re.sub(r"\W+", "", case_number).lower()
 
-        return {
+        entry = {
             "ENTRYTYPE": "article",
             "ID": entry_id,
             "title": str(case.get("headline", "No Title")),
@@ -53,9 +51,11 @@ def create_bib_entry(case: dict) -> dict:
             "pages": str(case_number),
             "url": f"https://domsdatabasen.dk/#sag/{case.get('id', 'unknown')}",
         }
+        logger.info(f"Created BibTeX entry for case ID: {entry_id}")
+        return entry
     except Exception as e:
+        logger.error(f"Failed to create BibTeX entry: {str(e)}")
         raise ConversionError(f"Failed to create BibTeX entry: {str(e)}")
-
 
 def main(args=None):
     """Convert JSON case files to BibTeX format."""
@@ -64,11 +64,13 @@ def main(args=None):
 
     try:
         json_files = glob.glob(f"{args.directory}/*.json")
+        logger.info(f"Searching for JSON files in: {args.directory}")
         if not json_files:
             raise ConversionError(f"No JSON files found in {args.directory}")
 
         count = 0
         for file_path in json_files:
+            logger.info(f"Processing file: {file_path}")
             with open(file_path, "r", encoding="utf-8") as f:
                 cases = json.load(f)
                 for case in cases:
@@ -83,14 +85,11 @@ def main(args=None):
         with open(args.output, "w", encoding="utf-8") as f:
             writer = bib.bwriter.BibTexWriter()
             f.write(writer.write(database))
-        print(f"Converted {count} cases to {args.output}")
-
+        logger.info(f"Converted {count} cases to {args.output}")
     except ConversionError as e:
-        print(f"Error: {str(e)}")
+        logger.error(f"Error: {str(e)}")
         exit(1)
-
 
 if __name__ == "__main__":
     from src.cli.cli import main as cli_main
-
     cli_main()

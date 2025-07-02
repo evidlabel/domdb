@@ -1,7 +1,6 @@
-import os
 import pytest
 import json
-from domdb.core.json2bib import create_bib_entry, ConversionError
+from domdb.core.json2bib import create_bib_entry
 from domdb.cli.cli import main as cli_main
 
 
