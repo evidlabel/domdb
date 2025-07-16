@@ -9,7 +9,11 @@ Tools for citing Danish judicial verdicts in LaTeX.
 ## Installation
 
 ```sh
-poetry install
+git clone https://github.com/evidlabel/domdb.git
+cd domdb
+uv venv
+source .venv/bin/activate  # On Unix-like systems
+uv sync
 ```
 
 **Note**: To use this tool, you must obtain a username and password from [Domsdatabasen](https://domsdatabasen.dk/spoergsmaal-og-svar/api-adgang-til-domsdatabasen/) to access the domsdatabasen.dk API.
@@ -18,16 +22,16 @@ poetry install
 
 ### Download Verdicts
 ```sh
-poetry run domdb download-verdicts
+uv run domdb download-verdicts
 ```
 
 ### JSON to BibTeX
 ```sh
 # Basic conversion
-poetry run domdb json2bib
+uv run domdb json2bib
 
 # With custom paths and limit
-poetry run domdb json2bib -d ./cases -o ./references.bib -n 100
+uv run domdb json2bib -d ./cases -o ./references.bib -n 100
 ```
 
 ## Configuration
@@ -39,18 +43,18 @@ export DOMDB_PASSWORD="your_password"
 ```
 
 2. Default cases directory: `~/domdatabasen/cases`
-   - Override with `-d/--directory` flag
+- Override with `-d/--directory` flag
 
 ## Development
 
 Run tests:
 ```sh
-poetry run pytest --cov=domdb
+uv run pytest --cov=domdb
 ```
 
 Serve documentation locally:
 ```sh
-poetry run mkdocs serve
+uv run mkdocs serve
 ```
 
 
@@ -66,5 +70,4 @@ The tool processes and represents data from `domsdatabasen.dk` which is a public
 
 Users are responsible for verifying the accuracy and applicability of the data for their purposes.
 
-`domdb` does not publish the content of the verdicts because they may be subject to modification, in particular through updated anonymization. If you need the content of the verdicts, apply for API access. 
-
+`domdb` does not publish the content of the verdicts because they may be subject to modification, in particular through updated anonymization. If you need the content of the verdicts, apply for API access.

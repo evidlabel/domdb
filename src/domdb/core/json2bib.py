@@ -79,17 +79,22 @@ def main(args=None):
                     database.entries.append(create_bib_entry(case))
                     count += 1
 
+        # Remove duplicate entries based on ID
+        seen = set()
+        unique_entries = []
+        for entry in database.entries:
+            if entry["ID"] not in seen:
+                unique_entries.append(entry)
+                seen.add(entry["ID"])
+        database.entries = unique_entries
+
         database.entries.sort(key=lambda x: x.get("date", "0000-00-00"), reverse=True)
 
         os.makedirs(os.path.dirname(args.output), exist_ok=True)
         with open(args.output, "w", encoding="utf-8") as f:
             writer = bib.bwriter.BibTexWriter()
             f.write(writer.write(database))
-        logger.info(f"Converted {count} cases to {args.output}")
+        logger.info(f"Converted {len(database.entries)} unique cases to {args.output}")
     except ConversionError as e:
         logger.error(f"Error: {str(e)}")
         exit(1)
-
-if __name__ == "__main__":
-    from src.cli.cli import main as cli_main
-    cli_main()

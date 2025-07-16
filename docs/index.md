@@ -1,4 +1,4 @@
-# Welcome to domdb
+# domdb
 
 Tools for citing Danish judicial verdicts in LaTeX.
 
@@ -11,10 +11,21 @@ Tools for citing Danish judicial verdicts in LaTeX.
 
 ## Quick Start
 
+After installation (see [Installation](installation.md)):
+
 ```bash
-poetry install
-poetry run domdb download-verdicts
-poetry run domdb json2bib
+uv run domdb download-verdicts
+uv run domdb json2bib
 ```
 
 See [Installation](installation.md) and [Usage](usage.md) for detailed instructions.
+
+## Citing verdicts 
+### Typst example
+```bash
+
+wget https://raw.githubusercontent.com/evidlabel/domdb/master/resources/cases.bib  -O cases.bib
+echo "#bibliography(\"cases.bib\",full:true)" > all.typ
+typst compile all.typ
+
+```

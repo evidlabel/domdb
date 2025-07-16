@@ -3,11 +3,11 @@ import requests
 import json
 from typing import List, Optional
 import logging
+from .config import load_config
 
 API_BASE_URL = "https://domsdatabasen.dk/webapi/kapi/v1"
 USER_ID = os.getenv("DOMDB_USER_ID")
 PASSWORD = os.getenv("DOMDB_PASSWORD")
-CASES_DIR = os.path.expanduser("~/domdatabasen/cases")
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ def get_sager(token: str, page_number: int = 1, per_page: int = 100) -> List[dic
         logger.error(f"Failed to fetch cases: {str(e)}")
         raise DownloadError(f"Failed to fetch cases: {str(e)}")
 
-def get_last_saved_page(directory: str = CASES_DIR) -> int:
+def get_last_saved_page(directory: str) -> int:
     """Determine the last saved page number."""
     logger.info(f"Checking last saved page in directory: {directory}")
     if not os.path.exists(directory):
@@ -66,7 +66,7 @@ def get_last_saved_page(directory: str = CASES_DIR) -> int:
         logger.warning("Error parsing file names, starting from page 1")
         return 1
 
-def save_cases(page_number: int, cases: List[dict], directory: str = CASES_DIR) -> None:
+def save_cases(page_number: int, cases: List[dict], directory: str) -> None:
     """Save cases to a JSON file."""
     logger.info(f"Saving {len(cases)} cases to directory: {directory}")
     os.makedirs(directory, exist_ok=True)
@@ -79,14 +79,15 @@ def save_cases(page_number: int, cases: List[dict], directory: str = CASES_DIR) 
         logger.error(f"Failed to save cases: {str(e)}")
         raise DownloadError(f"Failed to save cases: {str(e)}")
 
-def load_next_batch(directory: str = CASES_DIR) -> int:
+def load_next_batch(directory: str) -> int:
     """Load and save the next batch of cases."""
+    config = load_config()
     try:
         logger.info(f"Starting to load next batch in directory: {directory}")
         token = get_access_token()
         page_number = get_last_saved_page(directory)
         logger.info(f"Fetching page {page_number}...")
-        cases = get_sager(token, page_number=page_number, per_page=25)
+        cases = get_sager(token, page_number=page_number, per_page=config["batch_size"])
         if cases:
             save_cases(page_number, cases, directory)
             logger.info(f"Successfully fetched and saved {len(cases)} cases")

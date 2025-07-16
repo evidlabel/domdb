@@ -5,17 +5,17 @@
 ## Downloading Verdicts
 
 ```bash
-poetry run domdb download-verdicts
+uv run domdb download-verdicts
 ```
 
 ## Converting to BibTeX
 
 ```bash
 # Basic usage
-poetry run domdb json2bib
+uv run domdb json2bib
 
 # With custom options
-poetry run domdb json2bib -d ./cases -o ./refs.bib -n 100
+uv run domdb json2bib -d ./cases -o ./refs.bib -n 100
 ```
 
 ## Configuration

@@ -1,11 +1,13 @@
 import argparse
 from typing import Optional
-from domdb.core.download_verdicts import CASES_DIR, load_next_batch
+from domdb.core.download_verdicts import load_next_batch
 from domdb.core.json2bib import main as json2bib_main
+from domdb.core.config import load_config
 
 
 def create_parser() -> argparse.ArgumentParser:
     """Create the main CLI parser with subcommands."""
+    config = load_config()
     parser = argparse.ArgumentParser(
         description="domdb: Tools for citing Danish judicial verdicts in LaTeX"
     )
@@ -13,14 +15,14 @@ def create_parser() -> argparse.ArgumentParser:
 
     # Download verdicts subcommand
     download_parser = subparsers.add_parser(
-        "download",
+        "download-verdicts",
         help="Download verdicts from domsdatabasen.dk",
     )
     download_parser.add_argument(
         "-d",
         "--directory",
         type=str,
-        default=CASES_DIR,
+        default=config["cases_directory"],
         help="Directory to save JSON case files",
     )
 
@@ -39,14 +41,14 @@ def create_parser() -> argparse.ArgumentParser:
         "-d",
         "--directory",
         type=str,
-        default=CASES_DIR,
+        default=config["cases_directory"],
         help="Directory containing JSON case files",
     )
     bib_parser.add_argument(
         "-o",
         "--output",
         type=str,
-        default="resources/cases.bib",
+        default=config["bib_output"],
         help="Output BibTeX file path",
     )
 
@@ -62,7 +64,7 @@ def main(args: Optional[list] = None) -> None:
         parser.print_help()
         exit(1)
 
-    if args.command == "download":
+    if args.command == "download-verdicts":
         try:
             count = load_next_batch(directory=args.directory)
             print(f"Successfully fetched {count} cases")

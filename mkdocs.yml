@@ -1,4 +1,4 @@
-site_name: domdb Documentation
+site_name: domdb
 site_url: https://evidlabel.github.io/domdb/  # Update with your actual URL
 repo_url: https://github.com/evidlabel/domdb
 repo_name: evidlabel/domdb
@@ -6,7 +6,8 @@ repo_name: evidlabel/domdb
 theme:
   name: material
   palette:
-    primary: deep blue
+    primary: black
+    scheme: slate
   features:
     - content.code.copy
     - content.tabs
