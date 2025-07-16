@@ -1,13 +1,13 @@
 # API Reference
 
-## domdb.download_verdicts
+## domdb.get
 
 ```python
-:: domdb.download_verdicts
-MD```
+:: domdb.get
+```
 
-## domdb.json2bib
+## domdb.bib
 
 ```python
-:: domdb.json2bib
-MD```
+:: domdb.bib
+```

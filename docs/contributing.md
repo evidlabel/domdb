@@ -3,15 +3,17 @@
 ## Development Setup
 
 ```bash
-poetry install
-poetry run pytest
+uv venv
+source .venv/bin/activate  # On Unix-like systems
+uv sync --dev  # Assuming dev dependencies are configured
+uv run pytest
 ```
 
 ## Building Documentation
 
 ```bash
-poetry run mkdocs serve  # Local preview
-poetry run mkdocs build  # Build static site
+uv run mkdocs serve  # Local preview
+uv run mkdocs build  # Build static site
 ```
 
 ## Submitting Changes

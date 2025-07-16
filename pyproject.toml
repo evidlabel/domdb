@@ -1,6 +1,6 @@
 [project]
 name = "domdb"
-version = "0.1.1"
+version = "0.1.2"
 description = "Tools for citing Danish judicial verdicts in LaTeX"
 authors = [{ name = "evid", email = "95282593+evidlabel@users.noreply.github.com" }]
 requires-python = "~=3.12"
@@ -8,12 +8,13 @@ readme = "README.md"
 dependencies = [
     "requests>=2.32.3,<3",
     "bibtexparser>=1.2.0,<2",
+    "rich-click>=1.8.3,<2",
 ]
 
 [project.scripts]
 domdb = "domdb.cli.cli:main"
 
-[dependency-groups]
+[project.optional-dependencies]
 dev = [
     "pytest>=7.0.0,<8",
     "pytest-cov>=3.0.0,<4",
