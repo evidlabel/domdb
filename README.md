@@ -36,8 +36,14 @@ domdb bib
 domdb bib -d ./cases -o ./references.bib -n 100
 ```
 
+### Citing the db using [typst](https://typst.app/)
 
-
+```bash
+wget https://raw.githubusercontent.com/evidlabel/domdb/master/resources/cases.bib  -O cases.bib
+echo "Citing all verdicts:
+#bibliography(\"cases.bib\",full:true)" > all.typ
+typst compile all.typ
+```
 
 ## Configuration
 
