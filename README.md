@@ -1,3 +1,5 @@
+![Deploy](https://github.com/evidlabel/domdb/actions/workflows/tests.yml/badge.svg)![Version](https://img.shields.io/github/v/release/evidlabel/domdb)
+
 # domdb
 
 Tools for citing Danish judicial verdicts in LaTeX.
@@ -22,17 +24,20 @@ uv sync
 
 ### Download Verdicts
 ```sh
-uv run domdb get
+domdb get
 ```
 
 ### JSON to BibTeX
 ```sh
 # Basic conversion
-uv run domdb bib
+domdb bib
 
 # With custom paths and limit
-uv run domdb bib -d ./cases -o ./references.bib -n 100
+domdb bib -d ./cases -o ./references.bib -n 100
 ```
+
+
+
 
 ## Configuration
 
