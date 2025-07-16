@@ -1,9 +1,9 @@
-#!/usr/bin/env python
 import re
 import glob
 import json
 import os
 from datetime import datetime
+from typing import Optional
 import bibtexparser as bib
 import logging
 
@@ -57,44 +57,41 @@ def create_bib_entry(case: dict) -> dict:
         logger.error(f"Failed to create BibTeX entry: {str(e)}")
         raise ConversionError(f"Failed to create BibTeX entry: {str(e)}")
 
-def main(args=None):
+def convert_json_to_bib(directory: str, output: str, number: Optional[int] = None) -> int:
     """Convert JSON case files to BibTeX format."""
     database = bib.bibdatabase.BibDatabase()
     database.entries = []
 
-    try:
-        json_files = glob.glob(f"{args.directory}/*.json")
-        logger.info(f"Searching for JSON files in: {args.directory}")
-        if not json_files:
-            raise ConversionError(f"No JSON files found in {args.directory}")
+    json_files = glob.glob(f"{directory}/*.json")
+    logger.info(f"Searching for JSON files in: {directory}")
+    if not json_files:
+        raise ConversionError(f"No JSON files found in {directory}")
 
-        count = 0
-        for file_path in json_files:
-            logger.info(f"Processing file: {file_path}")
-            with open(file_path, "r", encoding="utf-8") as f:
-                cases = json.load(f)
-                for case in cases:
-                    if args.number and count >= args.number:
-                        break
-                    database.entries.append(create_bib_entry(case))
-                    count += 1
+    count = 0
+    for file_path in json_files:
+        logger.info(f"Processing file: {file_path}")
+        with open(file_path, "r", encoding="utf-8") as f:
+            cases = json.load(f)
+            for case in cases:
+                if number and count >= number:
+                    break
+                database.entries.append(create_bib_entry(case))
+                count += 1
 
-        # Remove duplicate entries based on ID
-        seen = set()
-        unique_entries = []
-        for entry in database.entries:
-            if entry["ID"] not in seen:
-                unique_entries.append(entry)
-                seen.add(entry["ID"])
-        database.entries = unique_entries
+    # Remove duplicate entries based on ID
+    seen = set()
+    unique_entries = []
+    for entry in database.entries:
+        if entry["ID"] not in seen:
+            unique_entries.append(entry)
+            seen.add(entry["ID"])
+    database.entries = unique_entries
 
-        database.entries.sort(key=lambda x: x.get("date", "0000-00-00"), reverse=True)
+    database.entries.sort(key=lambda x: x.get("date", "0000-00-00"), reverse=True)
 
-        os.makedirs(os.path.dirname(args.output), exist_ok=True)
-        with open(args.output, "w", encoding="utf-8") as f:
-            writer = bib.bwriter.BibTexWriter()
-            f.write(writer.write(database))
-        logger.info(f"Converted {len(database.entries)} unique cases to {args.output}")
-    except ConversionError as e:
-        logger.error(f"Error: {str(e)}")
-        exit(1)
+    os.makedirs(os.path.dirname(output), exist_ok=True)
+    with open(output, "w", encoding="utf-8") as f:
+        writer = bib.bwriter.BibTexWriter()
+        f.write(writer.write(database))
+    logger.info(f"Converted {len(database.entries)} unique cases to {output}")
+    return len(database.entries)

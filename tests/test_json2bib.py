@@ -1,7 +1,8 @@
 import pytest
 import json
+from click.testing import CliRunner
 from domdb.core.json2bib import create_bib_entry
-from domdb.cli.cli import main as cli_main
+from domdb.cli.cli import cli
 
 
 @pytest.fixture
@@ -31,12 +32,15 @@ def test_main_success(tmp_path, sample_case):
         json.dump([sample_case], f)
 
     output_file = tmp_path / "output.bib"
-    cli_main(["json2bib", "-d", str(tmp_path), "-o", str(output_file)])
+    runner = CliRunner()
+    result = runner.invoke(cli, ["bib", "-d", str(tmp_path), "-o", str(output_file)])
+    assert result.exit_code == 0
     assert output_file.exists()
 
 
 def test_main_no_files(tmp_path):
     output_file = tmp_path / "output.bib"
-    with pytest.raises(SystemExit):
-        cli_main(["json2bib", "-d", str(tmp_path), "-o", str(output_file)])
+    runner = CliRunner()
+    result = runner.invoke(cli, ["bib", "-d", str(tmp_path), "-o", str(output_file)])
+    assert result.exit_code == 1
     assert not output_file.exists()

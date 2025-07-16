@@ -82,18 +82,14 @@ def save_cases(page_number: int, cases: List[dict], directory: str) -> None:
 def load_next_batch(directory: str) -> int:
     """Load and save the next batch of cases."""
     config = load_config()
-    try:
-        logger.info(f"Starting to load next batch in directory: {directory}")
-        token = get_access_token()
-        page_number = get_last_saved_page(directory)
-        logger.info(f"Fetching page {page_number}...")
-        cases = get_sager(token, page_number=page_number, per_page=config["batch_size"])
-        if cases:
-            save_cases(page_number, cases, directory)
-            logger.info(f"Successfully fetched and saved {len(cases)} cases")
-            return len(cases)
-        logger.info("No cases fetched")
-        return 0
-    except DownloadError as e:
-        logger.error(f"Error: {str(e)}")
-        return 0
+    logger.info(f"Starting to load next batch in directory: {directory}")
+    token = get_access_token()
+    page_number = get_last_saved_page(directory)
+    logger.info(f"Fetching page {page_number}...")
+    cases = get_sager(token, page_number=page_number, per_page=config["batch_size"])
+    if cases:
+        save_cases(page_number, cases, directory)
+        logger.info(f"Successfully fetched and saved {len(cases)} cases")
+        return len(cases)
+    logger.info("No cases fetched")
+    return 0

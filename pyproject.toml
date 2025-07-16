@@ -8,6 +8,7 @@ readme = "README.md"
 dependencies = [
     "requests>=2.32.3,<3",
     "bibtexparser>=1.2.0,<2",
+    "rich-click>=1.8.3,<2",
 ]
 
 [project.scripts]
