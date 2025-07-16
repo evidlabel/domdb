@@ -20,12 +20,19 @@ uv sync
 
 **Note**: To use this tool, you must obtain a username and password from [Domsdatabasen](https://domsdatabasen.dk/spoergsmaal-og-svar/api-adgang-til-domsdatabasen/) to access the domsdatabasen.dk API.
 
-## Usage Examples
+## Usage 
 
 ### Download Verdicts
+The `get` command downloads the latest verdicts into the local verdicts storage. 
 ```sh
 domdb get
 ```
+**Note** that each verdict contains the full pdf, which is why `get` only adds the latest and doesn't rerun a full download. 
+
+**Note** that you need to apply for API access in order to use `domdb`.
+
+
+
 
 ### JSON to BibTeX
 ```sh
@@ -75,10 +82,11 @@ MIT License
 
 ## Disclaimer
 
-`domdb` is a tool for converting a publicly available Danish database of verdicts into BibTeX format for use in LaTeX. It does not provide legal advice or interpret legal content. 
+`domdb` is a tool for converting a publicly available Danish database of verdicts into BibTeX format for use in LaTeX or typst. 
+It does *not* provide legal advice or interpret legal content. 
 
 The tool processes and represents data from `domsdatabasen.dk` which is a public source, without modification to the original content, other than for the purposes of correct rendering in LaTeX. 
 
 Users are responsible for verifying the accuracy and applicability of the data for their purposes.
 
-`domdb` does not publish the content of the verdicts because they may be subject to modification, in particular through updated anonymization. If you need the content of the verdicts, apply for API access.
+`domdb` does not publish the content of the verdicts because they may be subject to modification, in particular through updated pseudonymization. If you need the content of the verdicts, apply for API access.
