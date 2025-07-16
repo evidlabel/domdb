@@ -22,16 +22,16 @@ uv sync
 
 ### Download Verdicts
 ```sh
-uv run domdb download-verdicts
+uv run domdb get
 ```
 
 ### JSON to BibTeX
 ```sh
 # Basic conversion
-uv run domdb json2bib
+uv run domdb bib
 
 # With custom paths and limit
-uv run domdb json2bib -d ./cases -o ./references.bib -n 100
+uv run domdb bib -d ./cases -o ./references.bib -n 100
 ```
 
 ## Configuration

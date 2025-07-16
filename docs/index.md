@@ -14,8 +14,8 @@ Tools for citing Danish judicial verdicts in LaTeX.
 After installation (see [Installation](installation.md)):
 
 ```bash
-uv run domdb download-verdicts
-uv run domdb json2bib
+uv run domdb get
+uv run domdb bib
 ```
 
 See [Installation](installation.md) and [Usage](usage.md) for detailed instructions.
