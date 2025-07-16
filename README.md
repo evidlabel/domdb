@@ -2,7 +2,7 @@
 
 # domdb
 
-Tools for citing Danish judicial verdicts in LaTeX.
+Tools translating Danish judicial verdicts to bibtex, for use in LaTeX or typst.
 
 ## Features
 - Download Danish judicial verdicts from domsdatabasen.dk
@@ -31,9 +31,6 @@ domdb get
 
 **Note** that you need to apply for API access in order to use `domdb`.
 
-
-
-
 ### JSON to BibTeX
 ```sh
 # Basic conversion
@@ -43,7 +40,7 @@ domdb bib
 domdb bib -d ./cases -o ./references.bib -n 100
 ```
 
-### Citing the db using [typst](https://typst.app/)
+### Using the db using [typst](https://typst.app/)
 
 ```bash
 wget https://raw.githubusercontent.com/evidlabel/domdb/master/resources/cases.bib  -O cases.bib
