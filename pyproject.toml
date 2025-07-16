@@ -14,7 +14,7 @@ dependencies = [
 [project.scripts]
 domdb = "domdb.cli.cli:main"
 
-[dependency-groups]
+[project.optional-dependencies]
 dev = [
     "pytest>=7.0.0,<8",
     "pytest-cov>=3.0.0,<4",
