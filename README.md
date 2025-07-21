@@ -10,12 +10,9 @@ Tools translating Danish judicial verdicts to bibtex, for use in LaTeX or typst.
 
 ## Installation
 
-```sh
-git clone https://github.com/evidlabel/domdb.git
-cd domdb
-uv venv
-source .venv/bin/activate  # On Unix-like systems
-uv sync
+```bash
+uv pip install https://github.com/evidlabel/domdb.git
+domdb -h
 ```
 
 **Note**: To use this tool, you must obtain a username and password from [Domsdatabasen](https://domsdatabasen.dk/spoergsmaal-og-svar/api-adgang-til-domsdatabasen/) to access the domsdatabasen.dk API.

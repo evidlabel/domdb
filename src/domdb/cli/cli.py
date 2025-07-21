@@ -6,7 +6,12 @@ from domdb.core.json2bib import convert_json_to_bib, ConversionError
 from domdb.core.config import load_config
 
 
-@click.group(chain=True, invoke_without_command=True)
+@click.group(
+    chain=True,
+    invoke_without_command=True,
+    help="Tools for citing Danish judicial verdicts in LaTeX.",
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
 @click.pass_context
 def cli(ctx):
     """Tools for citing Danish judicial verdicts in LaTeX."""
@@ -35,7 +40,11 @@ def get_command(directory: str):
 
 @cli.command("bib")
 @click.option(
-    "-n", "--number", type=int, default=None, help="Maximum number of verdicts to process"
+    "-n",
+    "--number",
+    type=int,
+    default=None,
+    help="Maximum number of verdicts to process",
 )
 @click.option(
     "-d",
