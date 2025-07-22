@@ -13,4 +13,3 @@ uv run pytest -v    # test
 uv run mkdocs serve  # Local preview
 uv run mkdocs build  # Build static site
 ```
-
