@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, RootModel
 
 
 class CaseSubject(BaseModel):
@@ -147,5 +147,5 @@ class ModelItem(BaseModel):
     author: Optional[str]
 
 
-class Model(BaseModel):
-    __root__: List[List[ModelItem]]
+class Model(RootModel):
+    root: List[List[ModelItem]]
