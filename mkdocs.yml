@@ -11,12 +11,14 @@ theme:
   features:
     - content.code.copy
     - content.tabs
+  font:
+    text: Ubuntu
+    code: Ubuntu Mono
 
 nav:
   - Home: index.md
   - Installation: installation.md
   - Usage: usage.md
-  - API Reference: api.md
   - Output Example: output.md
   - Contributing: contributing.md
 

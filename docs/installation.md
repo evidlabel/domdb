@@ -10,18 +10,10 @@
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/evidlabel/domdb.git
-cd domdb
+uv pip install https://github.com/evidlabel/domdb.git
 ```
 
-2. Create virtual environment and install dependencies:
-```bash
-uv venv
-source .venv/bin/activate  # On Unix-like systems; use .venv\Scripts\activate on Windows
-uv sync
-```
-
-3. Set environment variables:
+2. Set environment variables:
 ```bash
 export DOMDB_USER_ID="your_user_id"
 export DOMDB_PASSWORD="your_password"

@@ -5,17 +5,17 @@
 ## Downloading Verdicts
 
 ```bash
-uv run domdb get
+domdb get
 ```
 
 ## Converting to BibTeX
 
 ```bash
 # Basic usage
-uv run domdb bib
+domdb bib
 
 # With custom options
-uv run domdb bib -d ./cases -o ./refs.bib -n 100
+domdb bib -d ./cases -o ./refs.bib -n 100
 ```
 
 ## Configuration

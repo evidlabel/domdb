@@ -3,6 +3,7 @@ from typing import Optional
 import rich_click as click
 from domdb.core.download_verdicts import load_next_batch, DownloadError
 from domdb.core.json2bib import convert_json_to_bib, ConversionError
+from domdb.core.json2evid import convert_json_to_evid, EvidConversionError
 from domdb.core.config import load_config
 
 
@@ -64,6 +65,35 @@ def bib_command(number: Optional[int], directory: str, output: str):
         count = convert_json_to_bib(directory, output, number)
         click.echo(f"Converted {count} unique cases to {output}")
     except ConversionError as e:
+        raise click.ClickException(str(e))
+
+
+@cli.command("j2e")
+@click.option(
+    "-n",
+    "--number",
+    type=int,
+    default=None,
+    help="Maximum number of cases to process",
+)
+@click.option(
+    "-d",
+    "--directory",
+    default=lambda: load_config()["cases_directory"],
+    help="Directory containing JSON case files",
+)
+@click.option(
+    "-o",
+    "--output",
+    default="evid",
+    help="Output directory for EVID structure",
+)
+def j2e_command(number: Optional[int], directory: str, output: str):
+    """Convert JSON case files to EVID directory structure."""
+    try:
+        count = convert_json_to_evid(directory, output, number)
+        click.echo(f"Converted {count} cases to EVID in {output}")
+    except EvidConversionError as e:
         raise click.ClickException(str(e))
 
 
