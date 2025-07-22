@@ -144,6 +144,7 @@ class ModelItem(BaseModel):
     courtCaseNumber: str
     officeAbbreviation: str
     officeName: str
+    author: Optional[str]
 
 
 class Model(BaseModel):

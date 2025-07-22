@@ -6,6 +6,8 @@ from datetime import datetime
 from typing import Optional
 import bibtexparser as bib
 import logging
+from pydantic import ValidationError
+from .model import ModelItem
 
 class ConversionError(Exception):
     """Custom exception for conversion errors."""
@@ -13,43 +15,43 @@ class ConversionError(Exception):
 
 logger = logging.getLogger(__name__)
 
-def create_bib_entry(case: dict) -> dict:
+def create_bib_entry(case: ModelItem) -> dict:
     """Create a BibTeX entry from a case dictionary."""
     try:
-        author = case.get("author") or case.get("officeName", "Domstol")
-        profession = case.get("profession", {}).get("displayText", "Unknown")
-        instance = case.get("instance", {}).get("displayText", "Unknown")
-        case_type = case.get("caseType", {}).get("displayText", "Unknown")
+        author = case.author or case.officeName or "Domstol"
+        profession = case.profession.displayText or "Unknown"
+        instance = case.instance.displayText or "Unknown"
+        case_type = case.caseType.displayText or "Unknown"
         court = f"{profession}, {instance}, {case_type}"
 
         subjects = ", ".join(
-            s.get("displayText", "Unknown") for s in case.get("caseSubjects", [])
-        )
+            s.displayText for s in case.caseSubjects
+        ) or "Unknown"
 
         verdict_date = "Unknown"
-        for doc in case.get("documents", []):
-            if "verdictDateTime" in doc and isinstance(doc["verdictDateTime"], str):
+        for doc in case.documents:
+            if doc.verdictDateTime and isinstance(doc.verdictDateTime, str):
                 try:
                     verdict_date = datetime.strptime(
-                        doc["verdictDateTime"], "%Y-%m-%dT%H:%M:%S"
+                        doc.verdictDateTime, "%Y-%m-%dT%H:%M:%S"
                     ).strftime("%Y-%m-%d")
                     break
                 except ValueError:
                     continue
 
-        case_number = case.get("courtCaseNumber", "unknown")
+        case_number = case.courtCaseNumber or "unknown"
         entry_id = re.sub(r"\W+", "", case_number).lower()
 
         entry = {
             "ENTRYTYPE": "article",
             "ID": entry_id,
-            "title": str(case.get("headline", "No Title")),
-            "author": str(author),
+            "title": case.headline or "No Title",
+            "author": author,
             "court": court,
             "date": verdict_date,
             "publisher": subjects,
-            "pages": str(case_number),
-            "url": f"https://domsdatabasen.dk/#sag/{case.get('id', 'unknown')}",
+            "pages": case_number,
+            "url": f"https://domsdatabasen.dk/#sag/{case.id or 'unknown'}",
         }
         logger.info(f"Created BibTeX entry for case ID: {entry_id}")
         return entry
@@ -71,8 +73,13 @@ def convert_json_to_bib(directory: str, output: str, number: Optional[int] = Non
     for file_path in json_files:
         logger.info(f"Processing file: {file_path}")
         with open(file_path, "r", encoding="utf-8") as f:
-            cases = json.load(f)
-            for case in cases:
+            cases_data = json.load(f)
+            for case_data in cases_data:
+                try:
+                    case = ModelItem.model_validate(case_data)
+                except ValidationError as e:
+                    logger.error(f"Invalid case data: {str(e)}")
+                    continue
                 if number and count >= number:
                     break
                 database.entries.append(create_bib_entry(case))

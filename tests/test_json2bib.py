@@ -2,6 +2,7 @@ import pytest
 import json
 from click.testing import CliRunner
 from domdb.core.json2bib import create_bib_entry
+from domdb.core.model import ModelItem
 from domdb.cli.cli import cli
 
 
@@ -19,7 +20,8 @@ def sample_case():
 
 
 def test_create_bib_entry(sample_case):
-    entry = create_bib_entry(sample_case)
+    case = ModelItem.model_validate(sample_case)
+    entry = create_bib_entry(case)
     assert entry["ID"] == "1232023"
     assert entry["title"] == "Test Case"
     assert entry["date"] == "2023-01-01"
