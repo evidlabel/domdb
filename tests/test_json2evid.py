@@ -3,9 +3,9 @@ import json
 import uuid
 import yaml
 from click.testing import CliRunner
-from domdb.core.json2evid import create_evid_dir, convert_json_to_evid
+from domdb.core.converters.json2evid.convert import create_evid_dir, convert_json_to_evid
 from domdb.core.model import ModelItem
-from domdb.cli.cli import cli
+from domdb.cli.main import cli
 
 
 @pytest.fixture
@@ -14,7 +14,14 @@ def sample_case():
         "id": "test123",
         "headline": "Test Case",
         "courtCaseNumber": "123/2023",
-        "documents": [{"verdictDateTime": "2023-01-01T12:00:00"}],
+        "documents": [
+            {
+                "id": "doc1",
+                "verdictDateTime": "2023-01-01T12:00:00",
+                "contentHtml": "<p>Test content</p><p>More text</p>",
+                "contentPdf": None,
+            }
+        ],
         "profession": {"displayText": "Test Profession"},
         "instance": {"displayText": "Test Instance"},
         "caseType": {"displayText": "Test Type"},
@@ -57,6 +64,14 @@ def test_create_evid_dir(tmp_path, sample_case):
         assert "123/2023" in content
         assert "2023-01-01" in content
 
+    # Check extracted text
+    text_path = expected_dir / "verdict_text_doc1.txt"
+    assert text_path.exists()
+    with open(text_path, "r") as f:
+        text_content = f.read()
+        assert "Test content" in text_content
+        assert "More text" in text_content
+
 
 def test_convert_json_to_evid_success(tmp_path, sample_case):
     json_dir = tmp_path / "json"
@@ -73,6 +88,7 @@ def test_convert_json_to_evid_success(tmp_path, sample_case):
     assert (expected_dir / "case.json").exists()
     assert (expected_dir / "info.yml").exists()
     assert (expected_dir / "label.tex").exists()
+    assert (expected_dir / "verdict_text_doc1.txt").exists()
 
 
 def test_convert_json_to_evid_skip_existing(tmp_path, sample_case):
@@ -109,6 +125,7 @@ def test_j2e_command_success(tmp_path, sample_case):
     assert (expected_dir / "case.json").exists()
     assert (expected_dir / "info.yml").exists()
     assert (expected_dir / "label.tex").exists()
+    assert (expected_dir / "verdict_text_doc1.txt").exists()
 
 
 def test_j2e_command_no_files(tmp_path):

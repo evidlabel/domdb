@@ -3,69 +3,23 @@ import json
 import os
 import uuid
 from typing import Optional
-from datetime import datetime
-import yaml
 import logging
+import base64
+import io
+import yaml
+from bs4 import BeautifulSoup
+import pdfplumber
 from pydantic import ValidationError
-from .model import ModelItem
+
+from .utils import create_info_yml, create_label_tex
+from ....core.exceptions import EvidConversionError
+from ...model import ModelItem
 
 logger = logging.getLogger(__name__)
 
 
-class EvidConversionError(Exception):
-    """Custom exception for EVID conversion errors."""
-    pass
-
-
-def extract_verdict_date(case: ModelItem) -> Optional[str]:
-    """Extract verdict date from case documents."""
-    for doc in case.documents:
-        if doc.verdictDateTime and isinstance(doc.verdictDateTime, str):
-            try:
-                return datetime.strptime(
-                    doc.verdictDateTime, "%Y-%m-%dT%H:%M:%S"
-                ).strftime("%Y-%m-%d")
-            except ValueError:
-                continue
-    return None
-
-
-def create_info_yml(case: ModelItem) -> dict:
-    """Create info.yml content from case."""
-    verdict_date = extract_verdict_date(case) or "Unknown"
-    profession = case.profession.displayText or "Unknown"
-    instance = case.instance.displayText or "Unknown"
-    case_type = case.caseType.displayText or "Unknown"
-    court = f"{profession}, {instance}, {case_type}"
-    subjects = ", ".join(
-        s.displayText for s in case.caseSubjects
-    ) or "Unknown"
-    return {
-        "id": case.id,
-        "headline": case.headline or "No Title",
-        "court": court,
-        "date": verdict_date,
-        "subjects": subjects,
-        "case_number": case.courtCaseNumber or "Unknown",
-        "url": f"https://domsdatabasen.dk/#sag/{case.id or 'unknown'}",
-    }
-
-
-def create_label_tex(case: ModelItem) -> str:
-    """Create label.tex content for LaTeX citation."""
-    headline = case.headline or "No Title"
-    case_number = case.courtCaseNumber or "Unknown"
-    verdict_date = extract_verdict_date(case) or "Unknown"
-    return f"""\\label{{case-{case.id or 'unknown'}}}
-
-\\textbf{{{headline}}}\\\\
-Case Number: {case_number}\\\\
-Date: {verdict_date}
-"""
-
-
 def create_evid_dir(case: ModelItem, base_output: str) -> Optional[str]:
-    """Create EVID directory with case.json, info.yml, and label.tex."""
+    """Create EVID directory with case.json, info.yml, label.tex, and extracted text files."""
     case_id = case.id
     if not case_id:
         raise EvidConversionError("Case missing 'id'")
@@ -94,6 +48,26 @@ def create_evid_dir(case: ModelItem, base_output: str) -> Optional[str]:
     label_path = os.path.join(dir_path, "label.tex")
     with open(label_path, "w", encoding="utf-8") as f:
         f.write(create_label_tex(case))
+
+    # Extract plain text from documents
+    for doc in case.documents:
+        text = None
+        if doc.contentHtml:
+            soup = BeautifulSoup(doc.contentHtml, 'html.parser')
+            text = soup.get_text(separator='\n', strip=True)
+        elif doc.contentPdf:
+            try:
+                pdf_bytes = base64.b64decode(doc.contentPdf)
+                with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
+                    text_pages = [page.extract_text() for page in pdf.pages if page.extract_text()]
+                    text = '\n\n'.join(text_pages)
+            except Exception as e:
+                logger.warning(f"Failed to extract text from PDF for doc {doc.id}: {e}")
+
+        if text:
+            text_path = os.path.join(dir_path, f"verdict_text_{doc.id}.txt")
+            with open(text_path, "w", encoding="utf-8") as f:
+                f.write(text)
 
     logger.info(f"Created EVID directory: {dir_path}")
     return dir_path

@@ -1,24 +1,21 @@
 import pytest
 import json
 import requests
-from domdb.core.download_verdicts import (
-    get_access_token,
-    get_sager,
-    save_cases,
-    get_last_saved_page,
-    DownloadError,
-    load_next_batch,
-)
+from domdb.core.download.main import load_next_batch
+from domdb.core.download.auth import get_access_token
+from domdb.core.download.fetch import get_sager
+from domdb.core.download.storage import save_cases, get_last_saved_page
+from domdb.core.exceptions import DownloadError
 
 
 @pytest.fixture
 def mock_requests(mocker):
-    return mocker.patch("domdb.core.download_verdicts.requests")
+    return mocker.patch("requests")
 
 
 def test_get_access_token_success(mock_requests, mocker):
-    mocker.patch("domdb.core.download_verdicts.USER_ID", "test_user")
-    mocker.patch("domdb.core.download_verdicts.PASSWORD", "test_pass")
+    mocker.patch("domdb.core.download.auth.USER_ID", "test_user")
+    mocker.patch("domdb.core.download.auth.PASSWORD", "test_pass")
     mock_response = mock_requests.post.return_value
     mock_response.json.return_value = {"tokenString": "test_token"}
     mock_response.raise_for_status.return_value = None
@@ -28,8 +25,8 @@ def test_get_access_token_success(mock_requests, mocker):
 
 
 def test_get_access_token_missing_credentials(mocker):
-    mocker.patch("domdb.core.download_verdicts.USER_ID", None)
-    mocker.patch("domdb.core.download_verdicts.PASSWORD", None)
+    mocker.patch("domdb.core.download.auth.USER_ID", None)
+    mocker.patch("domdb.core.download.auth.PASSWORD", None)
     with pytest.raises(DownloadError):
         get_access_token()
 
@@ -71,8 +68,8 @@ def test_get_last_saved_page_existing(tmp_path):
 
 
 def test_load_next_batch_success(mock_requests, mocker, tmp_path):
-    mocker.patch("domdb.core.download_verdicts.USER_ID", "test_user")
-    mocker.patch("domdb.core.download_verdicts.PASSWORD", "test_pass")
+    mocker.patch("domdb.core.download.auth.USER_ID", "test_user")
+    mocker.patch("domdb.core.download.auth.PASSWORD", "test_pass")
     mock_response_post = mock_requests.post.return_value
     mock_response_post.json.return_value = {"tokenString": "test_token"}
     mock_response_post.raise_for_status.return_value = None

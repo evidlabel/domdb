@@ -1,9 +1,9 @@
 import pytest
 import json
 from click.testing import CliRunner
-from domdb.core.json2bib import create_bib_entry
+from domdb.core.converters.json2bib.entry import create_bib_entry
 from domdb.core.model import ModelItem
-from domdb.cli.cli import cli
+from domdb.cli.main import cli
 
 
 @pytest.fixture
