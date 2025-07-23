@@ -8,72 +8,72 @@ from typing import List, Optional
 
 from pydantic import BaseModel, RootModel, Field
 
-
 class CaseSubject(BaseModel):
+    """Model for a case subject enum."""
     enumValue: Optional[int] = None
     displayText: Optional[str] = None
 
-
 class CaseTag(BaseModel):
+    """Model for a case tag."""
     id: Optional[str] = None
     displayText: Optional[str] = None
 
-
 class VerdictStatus(BaseModel):
+    """Model for verdict status enum."""
     enumValue: Optional[int] = None
     displayText: Optional[str] = None
-
 
 class SpecialLegalAction(BaseModel):
+    """Model for a special legal action enum."""
     enumValue: Optional[int] = None
     displayText: Optional[str] = None
-
 
 class Type(BaseModel):
+    """Model for a type enum."""
     enumValue: Optional[int] = None
     displayText: Optional[str] = None
-
 
 class Role(BaseModel):
+    """Model for a role enum."""
     enumValue: Optional[int] = None
     displayText: Optional[str] = None
 
-
 class Participant(BaseModel):
+    """Model for a case participant."""
     type: Optional[Type] = None
     role: Optional[Role] = None
     name: Optional[str] = None
 
-
 class HorizontalCotreatmentCase(BaseModel):
+    """Model for a horizontal cotreatment case."""
     id: Optional[str] = None
     revokedDateTime: Optional[str] = None
     courtCaseNumber: Optional[str] = None
     officeAbbreviation: Optional[str] = None
     officeName: Optional[str] = None
 
-
 class AppealType(BaseModel):
+    """Model for an appeal type enum."""
     enumValue: Optional[int] = None
     displayText: Optional[str] = None
-
 
 class Profession(BaseModel):
+    """Model for a profession enum."""
     enumValue: Optional[int] = None
     displayText: Optional[str] = None
-
 
 class Instance(BaseModel):
+    """Model for an instance enum."""
     enumValue: Optional[int] = None
     displayText: Optional[str] = None
-
 
 class CaseType(BaseModel):
+    """Model for a case type enum."""
     enumValue: Optional[int] = None
     displayText: Optional[str] = None
 
-
 class AppealCase(BaseModel):
+    """Model for an appeal case."""
     caseworkerCaseNumber: Optional[str] = None
     index: Optional[int] = None
     appealType: Optional[AppealType] = None
@@ -89,23 +89,23 @@ class AppealCase(BaseModel):
     officeAbbreviation: Optional[str] = None
     officeName: Optional[str] = None
 
-
 class VerticalCotreatmentGroup(BaseModel):
+    """Model for a vertical cotreatment group."""
     appealCases: List[AppealCase] = Field(default_factory=list)
 
-
 class DocumentType(BaseModel):
+    """Model for a document type enum."""
     enumValue: Optional[int] = None
     displayText: Optional[str] = None
 
-
 class Reference(BaseModel):
+    """Model for a document reference."""
     markingId: Optional[str] = None
     content: Optional[str] = None
     type: Optional[str] = None
 
-
 class Document(BaseModel):
+    """Model for a case document."""
     contentHtml: Optional[str] = None
     contentPdf: Optional[str] = None
     id: Optional[str] = None
@@ -116,8 +116,8 @@ class Document(BaseModel):
     ecli: Optional[str] = None
     references: List[Reference] = Field(default_factory=list)
 
-
 class ModelItem(BaseModel):
+    """Model for a single case item."""
     caseSubjects: List[CaseSubject] = Field(default_factory=list)
     caseTags: List[CaseTag] = Field(default_factory=list)
     headline: Optional[str] = None
@@ -146,6 +146,6 @@ class ModelItem(BaseModel):
     officeName: Optional[str] = None
     author: Optional[str] = None
 
-
 class Model(RootModel):
+    """Root model for the case data structure."""
     root: List[List[ModelItem]] = Field(default_factory=list)
