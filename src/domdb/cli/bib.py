@@ -24,6 +24,8 @@ from domdb.core.config import load_config
 @click.option(
     "-o",
     "--output",
+    "-f",
+    "--file",
     default=lambda: load_config()["bib_output"],
     help="Output BibTeX file path",
 )

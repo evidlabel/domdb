@@ -27,7 +27,9 @@ from domdb.core.config import load_config
     default="evid",
     help="Output directory for EVID structure",
 )
-def j2e_command(number: Optional[int], directory: str, output: str):
+def j2e_command(
+    number: Optional[int], directory: str, output: str
+):  # Renamed parameter to output for clarity
     """Convert JSON case files to EVID directory structure."""
     try:
         count = convert_json_to_evid(directory, output, number)

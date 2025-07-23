@@ -6,146 +6,146 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from pydantic import BaseModel, RootModel
+from pydantic import BaseModel, RootModel, Field
 
 
 class CaseSubject(BaseModel):
-    enumValue: int
-    displayText: str
+    enumValue: Optional[int] = None
+    displayText: Optional[str] = None
 
 
 class CaseTag(BaseModel):
-    id: str
-    displayText: str
+    id: Optional[str] = None
+    displayText: Optional[str] = None
 
 
 class VerdictStatus(BaseModel):
-    enumValue: int
-    displayText: str
+    enumValue: Optional[int] = None
+    displayText: Optional[str] = None
 
 
 class SpecialLegalAction(BaseModel):
-    enumValue: int
-    displayText: str
+    enumValue: Optional[int] = None
+    displayText: Optional[str] = None
 
 
 class Type(BaseModel):
-    enumValue: int
-    displayText: str
+    enumValue: Optional[int] = None
+    displayText: Optional[str] = None
 
 
 class Role(BaseModel):
-    enumValue: int
-    displayText: str
+    enumValue: Optional[int] = None
+    displayText: Optional[str] = None
 
 
 class Participant(BaseModel):
-    type: Type
-    role: Role
-    name: str
+    type: Optional[Type] = None
+    role: Optional[Role] = None
+    name: Optional[str] = None
 
 
 class HorizontalCotreatmentCase(BaseModel):
-    id: str
-    revokedDateTime: None
-    courtCaseNumber: str
-    officeAbbreviation: str
-    officeName: str
+    id: Optional[str] = None
+    revokedDateTime: Optional[str] = None
+    courtCaseNumber: Optional[str] = None
+    officeAbbreviation: Optional[str] = None
+    officeName: Optional[str] = None
 
 
 class AppealType(BaseModel):
-    enumValue: int
-    displayText: str
+    enumValue: Optional[int] = None
+    displayText: Optional[str] = None
 
 
 class Profession(BaseModel):
-    enumValue: int
-    displayText: str
+    enumValue: Optional[int] = None
+    displayText: Optional[str] = None
 
 
 class Instance(BaseModel):
-    enumValue: int
-    displayText: str
+    enumValue: Optional[int] = None
+    displayText: Optional[str] = None
 
 
 class CaseType(BaseModel):
-    enumValue: int
-    displayText: str
+    enumValue: Optional[int] = None
+    displayText: Optional[str] = None
 
 
 class AppealCase(BaseModel):
-    caseworkerCaseNumber: str
-    index: int
-    appealType: AppealType
-    derivesFromSpecialRequest: bool
-    hasHorizontalCotreatment: bool
-    hasVerticalCotreatment: bool
-    profession: Profession
-    instance: Instance
-    caseType: CaseType
-    id: str
-    revokedDateTime: Optional[str]
-    courtCaseNumber: str
-    officeAbbreviation: str
-    officeName: str
+    caseworkerCaseNumber: Optional[str] = None
+    index: Optional[int] = None
+    appealType: Optional[AppealType] = None
+    derivesFromSpecialRequest: Optional[bool] = None
+    hasHorizontalCotreatment: Optional[bool] = None
+    hasVerticalCotreatment: Optional[bool] = None
+    profession: Optional[Profession] = None
+    instance: Optional[Instance] = None
+    caseType: Optional[CaseType] = None
+    id: Optional[str] = None
+    revokedDateTime: Optional[str] = None
+    courtCaseNumber: Optional[str] = None
+    officeAbbreviation: Optional[str] = None
+    officeName: Optional[str] = None
 
 
 class VerticalCotreatmentGroup(BaseModel):
-    appealCases: List[AppealCase]
+    appealCases: List[AppealCase] = Field(default_factory=list)
 
 
 class DocumentType(BaseModel):
-    enumValue: int
-    displayText: str
+    enumValue: Optional[int] = None
+    displayText: Optional[str] = None
 
 
 class Reference(BaseModel):
-    markingId: str
-    content: str
-    type: str
+    markingId: Optional[str] = None
+    content: Optional[str] = None
+    type: Optional[str] = None
 
 
 class Document(BaseModel):
-    contentHtml: Optional[str]
-    contentPdf: Optional[str]
-    id: str
-    displayTitle: Optional[str]
-    revokedDateTime: Optional[str]
-    documentType: DocumentType
-    verdictDateTime: Optional[str]
-    ecli: Optional[str]
-    references: List[Reference]
+    contentHtml: Optional[str] = None
+    contentPdf: Optional[str] = None
+    id: Optional[str] = None
+    displayTitle: Optional[str] = None
+    revokedDateTime: Optional[str] = None
+    documentType: Optional[DocumentType] = None
+    verdictDateTime: Optional[str] = None
+    ecli: Optional[str] = None
+    references: List[Reference] = Field(default_factory=list)
 
 
 class ModelItem(BaseModel):
-    caseSubjects: List[CaseSubject]
-    caseTags: List[CaseTag]
-    headline: Optional[str]
-    hasHorizontalCotreatment: Optional[bool]
-    hasVerticalCotreatment: Optional[bool]
-    caseworkerCaseNumber: str
-    verdictStatus: Optional[VerdictStatus]
-    specialLegalActions: List[SpecialLegalAction]
-    participants: List[Participant]
-    horizontalCotreatmentCases: Optional[List[HorizontalCotreatmentCase]]
-    verticalCotreatmentGroups: Optional[List[VerticalCotreatmentGroup]]
-    closedCourtroom: Optional[bool]
-    rightOfAccessExemption: Optional[bool]
-    liftedOutOfSmallCaseProcess: Optional[bool]
-    recognitionClaim: Optional[bool]
-    monetaryClaim: Optional[str]
-    politietsJournalnummer: Optional[str]
-    documents: List[Document]
-    profession: Profession
-    instance: Instance
-    caseType: CaseType
-    id: str
-    revokedDateTime: Optional[str]
-    courtCaseNumber: str
-    officeAbbreviation: str
-    officeName: str
-    author: Optional[str]
+    caseSubjects: List[CaseSubject] = Field(default_factory=list)
+    caseTags: List[CaseTag] = Field(default_factory=list)
+    headline: Optional[str] = None
+    hasHorizontalCotreatment: Optional[bool] = None
+    hasVerticalCotreatment: Optional[bool] = None
+    caseworkerCaseNumber: Optional[str] = None
+    verdictStatus: Optional[VerdictStatus] = None
+    specialLegalActions: List[SpecialLegalAction] = Field(default_factory=list)
+    participants: List[Participant] = Field(default_factory=list)
+    horizontalCotreatmentCases: List[HorizontalCotreatmentCase] = Field(default_factory=list)
+    verticalCotreatmentGroups: List[VerticalCotreatmentGroup] = Field(default_factory=list)
+    closedCourtroom: Optional[bool] = None
+    rightOfAccessExemption: Optional[bool] = None
+    liftedOutOfSmallCaseProcess: Optional[bool] = None
+    recognitionClaim: Optional[bool] = None
+    monetaryClaim: Optional[str] = None
+    politietsJournalnummer: Optional[str] = None
+    documents: List[Document] = Field(default_factory=list)
+    profession: Optional[Profession] = None
+    instance: Optional[Instance] = None
+    caseType: Optional[CaseType] = None
+    id: Optional[str] = None
+    revokedDateTime: Optional[str] = None
+    courtCaseNumber: Optional[str] = None
+    officeAbbreviation: Optional[str] = None
+    officeName: Optional[str] = None
+    author: Optional[str] = None
 
 
 class Model(RootModel):
-    root: List[List[ModelItem]]
+    root: List[List[ModelItem]] = Field(default_factory=list)

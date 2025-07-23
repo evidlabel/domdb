@@ -6,7 +6,7 @@ from ...model import ModelItem
 
 def extract_verdict_date(case: ModelItem) -> Optional[str]:
     """Extract verdict date from case documents."""
-    for doc in case.documents:
+    for doc in case.documents or []:
         if doc.verdictDateTime and isinstance(doc.verdictDateTime, str):
             try:
                 return datetime.strptime(
@@ -20,15 +20,15 @@ def extract_verdict_date(case: ModelItem) -> Optional[str]:
 def create_info_yml(case: ModelItem) -> dict:
     """Create info.yml content from case."""
     verdict_date = extract_verdict_date(case) or "Unknown"
-    profession = case.profession.displayText or "Unknown"
-    instance = case.instance.displayText or "Unknown"
-    case_type = case.caseType.displayText or "Unknown"
+    profession = (case.profession.displayText or "Unknown") if case.profession else "Unknown"
+    instance = (case.instance.displayText or "Unknown") if case.instance else "Unknown"
+    case_type = (case.caseType.displayText or "Unknown") if case.caseType else "Unknown"
     court = f"{profession}, {instance}, {case_type}"
     subjects = ", ".join(
-        s.displayText for s in case.caseSubjects
+        s.displayText or "" for s in case.caseSubjects or []
     ) or "Unknown"
     return {
-        "id": case.id,
+        "id": case.id or "unknown",
         "headline": case.headline or "No Title",
         "court": court,
         "date": verdict_date,

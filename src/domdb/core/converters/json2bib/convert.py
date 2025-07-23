@@ -32,6 +32,9 @@ def convert_json_to_bib(directory: str, output: str, number: Optional[int] = Non
             for case_data in cases_data:
                 try:
                     case = ModelItem.model_validate(case_data)
+                    if not case.id:
+                        logger.error("Skipping case without id")
+                        continue
                 except ValidationError as e:
                     logger.error(f"Invalid case data: {str(e)}")
                     continue

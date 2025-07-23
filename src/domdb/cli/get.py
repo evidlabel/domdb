@@ -9,6 +9,8 @@ from domdb.core.config import load_config
 @click.option(
     "-d",
     "--directory",
+    "-o",
+    "--output",
     default=lambda: load_config()["cases_directory"],
     help="Directory to save JSON case files",
 )
