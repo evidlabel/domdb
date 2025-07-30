@@ -1,5 +1,6 @@
 from typing import Optional
 from datetime import datetime
+import uuid
 
 from ...model import ModelItem
 
@@ -28,24 +29,13 @@ def create_info_yml(case: ModelItem) -> dict:
         s.displayText or "" for s in case.caseSubjects or []
     ) or "Unknown"
     return {
-        "id": case.id or "unknown",
-        "headline": case.headline or "No Title",
-        "court": court,
-        "date": verdict_date,
-        "subjects": subjects,
-        "case_number": case.courtCaseNumber or "Unknown",
+        "original_name": case.courtCaseNumber or "unknown",
+        "uuid": str(uuid.uuid5(uuid.NAMESPACE_OID, case.id or "unknown")),
+        "time_added": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "dates": verdict_date,
+        "title": case.headline or "No Title",
+        "authors": case.author or case.officeName or "Domstol",
+        "tags": subjects,
+        "label": court,
         "url": f"https://domsdatabasen.dk/#sag/{case.id or 'unknown'}",
     }
-
-
-def create_label_tex(case: ModelItem) -> str:
-    """Create label.tex content for LaTeX citation."""
-    headline = case.headline or "No Title"
-    case_number = case.courtCaseNumber or "Unknown"
-    verdict_date = extract_verdict_date(case) or "Unknown"
-    return f"""\\label{{case-{case.id or 'unknown'}}}
-
-\\textbf{{{headline}}}\\\\
-Case Number: {case_number}\\\\
-Date: {verdict_date}
-"""

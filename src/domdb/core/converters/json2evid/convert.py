@@ -12,11 +12,14 @@ import pdfplumber
 from pydantic import ValidationError
 import multiprocessing  # Added for parallelization
 
-from .utils import create_info_yml, create_label_tex
+from .utils import create_info_yml
 from ....core.exceptions import EvidConversionError
 from ...model import ModelItem
+from evid.core.label_setup import LATEX_TEMPLATE, clean_text_for_latex
+from evid.core.models import InfoModel
 
 logger = logging.getLogger(__name__)
+
 
 def create_evid_dir(case: ModelItem, base_output: str) -> Optional[str]:
     """Create EVID directory for a single case."""
@@ -41,44 +44,74 @@ def create_evid_dir(case: ModelItem, base_output: str) -> Optional[str]:
         json.dump(case.model_dump(), f, ensure_ascii=False, indent=2)
 
     # Save info.yml
+    info_dict = create_info_yml(case)
+    try:
+        validated_info = InfoModel(**info_dict)
+        info = validated_info.model_dump()
+    except ValueError as e:
+        logger.warning(f"Validation error for info: {e}. Using defaults.")
+        info = info_dict
     info_path = os.path.join(dir_path, "info.yml")
     with open(info_path, "w", encoding="utf-8") as f:
-        yaml.dump(create_info_yml(case), f, default_flow_style=False)
+        yaml.dump(info, f, default_flow_style=False)
 
-    # Save label.tex
-    label_path = os.path.join(dir_path, "label.tex")
-    with open(label_path, "w", encoding="utf-8") as f:
-        f.write(create_label_tex(case))
-
-    # Extract plain text from documents
+    # Collect all page texts from documents
+    all_page_texts = []
     for doc in case.documents or []:
-        text = None
         if doc.contentHtml:
-            soup = BeautifulSoup(doc.contentHtml, 'html.parser')
-            text = soup.get_text(separator='\n', strip=True)
+            soup = BeautifulSoup(doc.contentHtml, "html.parser")
+            text = soup.get_text(separator="\n", strip=True)
+            all_page_texts.append(text)
         elif doc.contentPdf:
             try:
                 pdf_bytes = base64.b64decode(doc.contentPdf)
                 with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
-                    text_pages = [page.extract_text() for page in pdf.pages if page.extract_text()]
-                    text = '\n\n'.join(text_pages)
+                    page_texts = [page.extract_text() or "" for page in pdf.pages]
+                    all_page_texts.extend(page_texts)
             except Exception as e:
-                logger.warning(f"Failed to extract text from PDF for doc {doc.id or 'unknown'}: {e}")
+                logger.warning(
+                    f"Failed to extract text from PDF for doc {doc.id or 'unknown'}: {e}"
+                )
 
-        if text:
-            text_path = os.path.join(dir_path, f"verdict_text_{doc.id or 'unknown'}.txt")
-            with open(text_path, "w", encoding="utf-8") as f:
-                f.write(text)
+    # Generate body for LaTeX
+    if not all_page_texts:
+        body = "\n\\subsection{1}\n\nNo content available"
+    else:
+        body = "".join(
+            f"\n\\subsection{{{i+1}}}\n\n{clean_text_for_latex(page_text)}"
+            for i, page_text in enumerate(all_page_texts)
+        )
+
+    # Prepare date and name similar to textpdf_to_latex
+    date = info.get("dates", "DATE")
+    if isinstance(date, list):
+        date = date[0] if date else "DATE"
+    date = str(date)
+    name = info.get("label", "NAME")
+
+    # Generate label.tex using evid's template
+    label_content = (
+        LATEX_TEMPLATE.replace("BODY", body)
+        .replace("DATE", date)
+        .replace("NAME", name.replace("_", " "))
+    )
+    label_path = os.path.join(dir_path, "label.tex")
+    with open(label_path, "w", encoding="utf-8") as f:
+        f.write(label_content)
 
     logger.info(f"Created EVID directory: {dir_path}")
     return dir_path
+
 
 def process_case(args):
     """Worker function for parallel processing."""
     case, output_dir = args
     return create_evid_dir(case, output_dir) is not None  # Return True if successful
 
-def convert_json_to_evid(directory: str, output: str, number: Optional[int] = None) -> int:
+
+def convert_json_to_evid(
+    directory: str, output: str, number: Optional[int] = None
+) -> int:
     """Convert JSON case files to EVID directory structure with parallel processing."""
     json_files = glob.glob(f"{directory}/*.json")
     if not json_files:
