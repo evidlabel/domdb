@@ -21,6 +21,19 @@ from evid.core.models import InfoModel
 logger = logging.getLogger(__name__)
 
 
+def add_newlines_after_periods(text: str) -> str:
+    """Add an extra newline to lines ending with a period (ignoring trailing spaces)."""
+    lines = text.splitlines()
+    processed = []
+    for line in lines:
+        stripped = line.rstrip()
+        if stripped.endswith('.'):
+            processed.append(line + '\n')
+        else:
+            processed.append(line)
+    return '\n'.join(processed)
+
+
 def create_evid_dir(case: ModelItem, base_output: str) -> Optional[str]:
     """Create EVID directory for a single case."""
     case_id = case.id
@@ -78,7 +91,7 @@ def create_evid_dir(case: ModelItem, base_output: str) -> Optional[str]:
         body = "\n\\subsection{1}\n\nNo content available"
     else:
         body = "".join(
-            f"\n\\subsection{{{i+1}}}\n\n{clean_text_for_latex(page_text)}"
+            f"\n\\subsection{{{i+1}}}\n\n{clean_text_for_latex(add_newlines_after_periods(page_text))}"
             for i, page_text in enumerate(all_page_texts)
         )
 

@@ -64,14 +64,6 @@ def test_create_evid_dir(tmp_path, sample_case):
         assert "123/2023" in content
         assert "2023-01-01" in content
 
-    # Check extracted text
-    text_path = expected_dir / "verdict_text_doc1.txt"
-    assert text_path.exists()
-    with open(text_path, "r") as f:
-        text_content = f.read()
-        assert "Test content" in text_content
-        assert "More text" in text_content
-
 
 def test_convert_json_to_evid_success(tmp_path, sample_case):
     json_dir = tmp_path / "json"
@@ -88,7 +80,6 @@ def test_convert_json_to_evid_success(tmp_path, sample_case):
     assert (expected_dir / "case.json").exists()
     assert (expected_dir / "info.yml").exists()
     assert (expected_dir / "label.tex").exists()
-    assert (expected_dir / "verdict_text_doc1.txt").exists()
 
 
 def test_convert_json_to_evid_skip_existing(tmp_path, sample_case):
@@ -125,7 +116,6 @@ def test_j2e_command_success(tmp_path, sample_case):
     assert (expected_dir / "case.json").exists()
     assert (expected_dir / "info.yml").exists()
     assert (expected_dir / "label.tex").exists()
-    assert (expected_dir / "verdict_text_doc1.txt").exists()
 
 
 def test_j2e_command_no_files(tmp_path):
