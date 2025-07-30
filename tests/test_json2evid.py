@@ -49,20 +49,24 @@ def test_create_evid_dir(tmp_path, sample_case):
     assert info_path.exists()
     with open(info_path, "r") as f:
         info = yaml.safe_load(f)
-        assert info["id"] == "test123"
-        assert info["headline"] == "Test Case"
-        assert info["date"] == "2023-01-01"
-        assert info["case_number"] == "123/2023"
+        assert info["uuid"] == expected_uuid
+        assert info["dates"] == "2023-01-01"
+        assert info["title"] == "Test Case"
+        assert info["label"] == "Test Profession, Test Instance, Test Type"
+        assert info["tags"] == "Subject1"
+        assert info["original_name"] == "123/2023"
+        assert info["url"] == "https://domsdatabasen.dk/#sag/test123"
 
     # Check label.tex
     label_path = expected_dir / "label.tex"
     assert label_path.exists()
     with open(label_path, "r") as f:
         content = f.read()
-        assert "\\label{case-test123}" in content
-        assert "Test Case" in content
-        assert "123/2023" in content
+        assert "\\subsection{1}" in content
+        assert "Test content" in content
+        assert "More text" in content
         assert "2023-01-01" in content
+        assert "Test Profession, Test Instance, Test Type" in content
 
 
 def test_convert_json_to_evid_success(tmp_path, sample_case):
@@ -125,4 +129,4 @@ def test_j2e_command_no_files(tmp_path):
     runner = CliRunner()
     result = runner.invoke(cli, ["j2e", "-d", str(json_dir), "-o", str(output_dir)])
     assert result.exit_code == 1
-    assert "No JSON files found" in result.exception.args[0]
+    assert "No JSON files found" in result.output
