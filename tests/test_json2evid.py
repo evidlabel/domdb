@@ -3,7 +3,8 @@ import json
 import uuid
 import yaml
 from click.testing import CliRunner
-from domdb.core.converters.json2evid.convert import create_evid_dir, convert_json_to_evid
+from domdb.core.converters.json2evid import convert_json_to_evid
+from domdb.core.converters.json2evid.dir_creation import create_evid_dir
 from domdb.core.model import ModelItem
 from domdb.cli.main import cli
 

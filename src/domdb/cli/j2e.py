@@ -2,7 +2,7 @@ from typing import Optional
 
 import rich_click as click
 
-from domdb.core.converters.json2evid.convert import convert_json_to_evid
+from domdb.core.converters.json2evid import convert_json_to_evid
 from domdb.core.exceptions import EvidConversionError
 from domdb.core.config import load_config
 
