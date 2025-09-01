@@ -2,7 +2,7 @@ import os
 import tomllib
 
 DEFAULT_CONFIG = {
-    "cases_directory": os.path.expanduser("~/domdatabasen/cases"),
+    "cases_directory": "~/domdatabasen/cases",
     "bib_output": "resources/cases.bib",
     "batch_size": 25,
 }
@@ -17,4 +17,5 @@ def load_config():
         with open(CONFIG_PATH, "rb") as f:
             user_config = tomllib.load(f)
         config.update(user_config)
+    config["cases_directory"] = os.path.expanduser(config["cases_directory"])
     return config

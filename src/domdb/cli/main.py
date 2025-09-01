@@ -16,7 +16,7 @@ app = cli(
             flags=["-d", "--directory"],
             help="Directory to save JSON case files",
             arg_type=str,
-            default=os.path.expanduser("~/domdatabasen/cases"),
+            default="~/domdatabasen/cases",
         ),
     ],
 )
