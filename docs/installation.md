@@ -4,7 +4,7 @@
 
 - Python 3.12+
 - UV (package manager, install via `pip install uv` or from https://docs.astral.sh/uv/)
-- Username and password from [Domsdatabasen](https://domsdatabasen.dk/) to access the domsdatabasen.dk API
+- Username and password from [Domsdatabasen](https://domsdatabasen.dk/spoergsmaal-og-svar/api-adgang-til-domsdatabasen/) to access the domsdatabasen.dk API
 
 ## Install domdb
 

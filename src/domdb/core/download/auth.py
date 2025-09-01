@@ -8,13 +8,13 @@ from ..exceptions import DownloadError
 logger = logging.getLogger(__name__)
 
 API_BASE_URL = "https://domsdatabasen.dk/webapi/kapi/v2"
-USER_ID = os.getenv("DOMDB_USER_ID")
-PASSWORD = os.getenv("DOMDB_PASSWORD")
 
 
 def get_access_token() -> str:
     """Authenticate and retrieve an access token."""
     try:
+        USER_ID = os.getenv("DOMDB_USER_ID")
+        PASSWORD = os.getenv("DOMDB_PASSWORD")
         url = f"{API_BASE_URL}/autoriser"
         headers = {"Content-Type": "application/json"}
         body = {"Email": USER_ID, "Password": PASSWORD}

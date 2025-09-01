@@ -20,21 +20,21 @@ domdb -h
 ## Usage 
 
 ### Download Verdicts
-The `get` command downloads the latest verdicts into the local verdicts storage. 
+The `download` command downloads the latest verdicts into the local verdicts storage. 
 ```sh
-domdb get
+domdb download
 ```
-**Note** that each verdict contains the full pdf, which is why `get` only adds the latest and doesn't rerun a full download. 
+**Note** that each verdict contains the full pdf, which is why `download` only adds the latest and doesn't rerun a full download. 
 
 **Note** that you need to apply for API access in order to use `domdb`.
 
 ### JSON to BibTeX
 ```sh
 # Basic conversion
-domdb bib
+domdb output bib
 
 # With custom paths and limit
-domdb bib -d ./cases -o ./references.bib -n 100
+domdb output bib -d ./cases -o ./references.bib -n 100
 ```
 
 ### Using the db using [typst](https://typst.app/)
