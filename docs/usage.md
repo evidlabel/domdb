@@ -1,21 +1,21 @@
 # Usage
 
-**Note**: To use this tool, you must obtain a username and password from [Domstolsstyrelsen](https://www.domstol.dk/om-domstolsstyrelsen/kontakt/) to access the domsdatabasen.dk API.
+**Note**: To use this tool, you must obtain a username and password from [Domsdatabasen](https://domsdatabasen.dk/spoergsmaal-og-svar/api-adgang-til-domsdatabasen/) to access the domsdatabasen.dk API.
 
 ## Downloading Verdicts
 
 ```bash
-uv run domdb get
+domdb download
 ```
 
 ## Converting to BibTeX
 
 ```bash
 # Basic usage
-uv run domdb bib
+domdb output bib
 
 # With custom options
-uv run domdb bib -d ./cases -o ./refs.bib -n 100
+domdb output bib -d ./cases -o ./refs.bib -n 100
 ```
 
 ## Configuration
