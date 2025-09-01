@@ -13,7 +13,7 @@ dependencies = [
     "numpy>=2.3.0,<3",
     "pdfplumber",
     "evid @ git+ssh://git@github.com/evidlabel/evid.git",
-    "treeparse>=",
+    "treeparse",
 ]
 
 [project.scripts]
