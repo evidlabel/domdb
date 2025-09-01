@@ -3,17 +3,17 @@ name = "domdb"
 version = "0.1.4"
 description = "Tools for citing Danish judicial verdicts in LaTeX"
 authors = [{ name = "evid", email = "95282593+evidlabel@users.noreply.github.com" }]
-requires-python = "~=3.12"
+requires-python = ">=3.12"
 readme = "README.md"
 dependencies = [
     "requests>=2.32.3,<3",
     "bibtexparser>=1.2.0,<2",
-    "rich-click>=1.8.3,<2",
     "pyyaml>=6.0.0,<7",
     "pydantic>=2.0.0,<3",
     "numpy>=2.3.0,<3",
     "pdfplumber",
-    "evid @ git+ssh://git@github.com/evidlabel/evid.git@0.1.4",
+    "evid @ git+ssh://git@github.com/evidlabel/evid.git",
+    "treeparse",
 ]
 
 [project.scripts]
@@ -30,6 +30,7 @@ dev = [
     "mkdocs-material>=9.5.0,<10",
     "mkdocstrings>=0.24.0,<0.25",
     "mkdocs-autorefs>=0.5.0,<0.6",
+    "ruff>=0.1.0,<1",
 ]
 
 [tool.hatch.build.targets.sdist]
@@ -48,3 +49,6 @@ build-backend = "hatchling.build"
 [tool.hatch.metadata]
 allow-direct-references=true
 # tool.hatch.metadata.allow-direct-references
+
+[tool.pytest.ini_options]
+addopts = "-v --cov=domdb --cov-report=term-missing"
