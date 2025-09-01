@@ -37,7 +37,9 @@ def test_get_access_token_success(mock_env, mocker):
 
 def test_get_access_token_missing_credentials(mocker):
     mocker.patch("os.getenv", return_value=None)
-    with pytest.raises(DownloadError, match="Missing USER_ID or PASSWORD environment variables"):
+    with pytest.raises(
+        DownloadError, match="Missing USER_ID or PASSWORD environment variables"
+    ):
         get_access_token()
 
 

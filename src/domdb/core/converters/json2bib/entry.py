@@ -12,14 +12,20 @@ def create_bib_entry(case: ModelItem) -> dict:
     """Create a BibTeX entry from a case dictionary."""
     try:
         author = case.author or case.officeName or "Domstol"
-        profession = (case.profession.displayText or "Unknown") if case.profession else "Unknown"
-        instance = (case.instance.displayText or "Unknown") if case.instance else "Unknown"
-        case_type = (case.caseType.displayText or "Unknown") if case.caseType else "Unknown"
+        profession = (
+            (case.profession.displayText or "Unknown") if case.profession else "Unknown"
+        )
+        instance = (
+            (case.instance.displayText or "Unknown") if case.instance else "Unknown"
+        )
+        case_type = (
+            (case.caseType.displayText or "Unknown") if case.caseType else "Unknown"
+        )
         court = f"{profession}, {instance}, {case_type}"
 
-        subjects = ", ".join(
-            s.displayText or "" for s in case.caseSubjects or []
-        ) or "Unknown"
+        subjects = (
+            ", ".join(s.displayText or "" for s in case.caseSubjects or []) or "Unknown"
+        )
 
         verdict_date = "Unknown"
         for doc in case.documents or []:

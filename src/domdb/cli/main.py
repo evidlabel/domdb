@@ -1,28 +1,16 @@
 import os
 
-from treeparse import cli, command, option
+from treeparse import cli, command, group, option
 
 from .download import download
 from .bib import bib
 from .j2e import j2e
-
-
-def output_group():
-    """Output group command."""
-    pass
-
 
 app = cli(
     name="domdb",
     help="Tools for citing Danish judicial verdicts using BibTeX.",
     show_defaults=True,
     context_settings={"help_option_names": ["-h", "--help"]},
-)
-
-download_cmd = command(
-    name="download",
-    help="Download verdicts from domsdatabasen.dk.",
-    callback=download,
     options=[
         option(
             flags=["-d", "--directory"],
@@ -32,12 +20,17 @@ download_cmd = command(
         ),
     ],
 )
+
+download_cmd = command(
+    name="download",
+    help="Download verdicts from domsdatabasen.dk.",
+    callback=download,
+)
 app.commands.append(download_cmd)
 
-output_cmd = command(
+output_cmd = group(
     name="output",
     help="Commands for outputting data.",
-    callback=output_group,
 )
 
 bib_cmd = command(
@@ -50,12 +43,6 @@ bib_cmd = command(
             help="Maximum number of verdicts to process",
             arg_type=int,
             default=-1,
-        ),
-        option(
-            flags=["-d", "--directory"],
-            help="Directory containing JSON case files",
-            arg_type=str,
-            default=os.path.expanduser("~/domdatabasen/cases"),
         ),
         option(
             flags=["-o", "--output"],
@@ -79,12 +66,6 @@ j2e_cmd = command(
             default=-1,
         ),
         option(
-            flags=["-d", "--directory"],
-            help="Directory containing JSON case files",
-            arg_type=str,
-            default=os.path.expanduser("~/domdatabasen/cases"),
-        ),
-        option(
             flags=["-o", "--output"],
             help="Output directory for EVID structure",
             arg_type=str,
@@ -94,7 +75,7 @@ j2e_cmd = command(
 )
 output_cmd.commands.append(j2e_cmd)
 
-app.commands.append(output_cmd)
+app.subgroups.append(output_cmd)
 
 
 def main():

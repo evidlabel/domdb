@@ -2,6 +2,7 @@ from typing import Optional
 from datetime import datetime
 from ...model import ModelItem
 
+
 def extract_verdict_date(case: ModelItem) -> Optional[str]:
     """Extract verdict date from case documents."""
     for doc in case.documents or []:

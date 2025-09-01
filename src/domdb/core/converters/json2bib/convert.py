@@ -14,7 +14,9 @@ from ...model import ModelItem
 logger = logging.getLogger(__name__)
 
 
-def convert_json_to_bib(directory: str, output: str, number: Optional[int] = None) -> int:
+def convert_json_to_bib(
+    directory: str, output: str, number: Optional[int] = None
+) -> int:
     """Convert JSON case files to BibTeX format."""
     database = bib.bibdatabase.BibDatabase()
     database.entries = []

@@ -2,11 +2,10 @@ import pytest
 import json
 import uuid
 import yaml
-from click.testing import CliRunner
-from domdb.core.converters.json2evid import convert_json_to_evid
 from domdb.core.converters.json2evid.dir_creation import create_evid_dir
+from domdb.core.converters.json2evid.processing import convert_json_to_evid
 from domdb.core.model import ModelItem
-from domdb.cli.main import cli
+from domdb.core.exceptions import EvidConversionError
 
 
 @pytest.fixture
@@ -58,12 +57,12 @@ def test_create_evid_dir(tmp_path, sample_case):
         assert info["original_name"] == "123/2023"
         assert info["url"] == "https://domsdatabasen.dk/#sag/test123"
 
-    # Check label.tex
-    label_path = expected_dir / "label.tex"
+    # Check label.typ
+    label_path = expected_dir / "label.typ"
     assert label_path.exists()
     with open(label_path, "r") as f:
         content = f.read()
-        assert "\\subsection{1}" in content
+        assert "#mset(values: (opage: 1))" in content
         assert "Test content" in content
         assert "More text" in content
         assert "2023-01-01" in content
@@ -84,7 +83,7 @@ def test_convert_json_to_evid_success(tmp_path, sample_case):
     expected_dir = output_dir / expected_uuid
     assert (expected_dir / "case.json").exists()
     assert (expected_dir / "info.yml").exists()
-    assert (expected_dir / "label.tex").exists()
+    assert (expected_dir / "label.typ").exists()
 
 
 def test_convert_json_to_evid_skip_existing(tmp_path, sample_case):
@@ -104,30 +103,9 @@ def test_convert_json_to_evid_skip_existing(tmp_path, sample_case):
     assert count2 == 0
 
 
-def test_j2e_command_success(tmp_path, sample_case):
-    json_dir = tmp_path / "json"
-    json_dir.mkdir()
-    json_file = json_dir / "cases_1.json"
-    with open(json_file, "w") as f:
-        json.dump([sample_case], f)
-
-    output_dir = tmp_path / "evid"
-    runner = CliRunner()
-    result = runner.invoke(cli, ["j2e", "-d", str(json_dir), "-o", str(output_dir)])
-    assert result.exit_code == 0
-    assert "Converted 1 cases to EVID" in result.output
-    expected_uuid = str(uuid.uuid5(uuid.NAMESPACE_OID, "test123"))
-    expected_dir = output_dir / expected_uuid
-    assert (expected_dir / "case.json").exists()
-    assert (expected_dir / "info.yml").exists()
-    assert (expected_dir / "label.tex").exists()
-
-
-def test_j2e_command_no_files(tmp_path):
+def test_convert_json_to_evid_no_files(tmp_path):
     json_dir = tmp_path / "json"
     json_dir.mkdir()
     output_dir = tmp_path / "evid"
-    runner = CliRunner()
-    result = runner.invoke(cli, ["j2e", "-d", str(json_dir), "-o", str(output_dir)])
-    assert result.exit_code == 1
-    assert "No JSON files found" in result.output
+    with pytest.raises(EvidConversionError, match="No JSON files found"):
+        convert_json_to_evid(str(json_dir), str(output_dir))

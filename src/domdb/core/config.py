@@ -9,6 +9,7 @@ DEFAULT_CONFIG = {
 
 CONFIG_PATH = os.path.expanduser("~/.domdb/config.toml")
 
+
 def load_config():
     """Load configuration from file or use defaults."""
     config = DEFAULT_CONFIG.copy()

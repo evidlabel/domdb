@@ -29,6 +29,7 @@ TYPST_TEMPLATE = """#import \"@local/labtyp:0.1.0\": lablist, lab, mset
 #lablist()
 """
 
+
 def create_evid_dir(case: ModelItem, base_output: str) -> Optional[str]:
     """Create EVID directory for a single case."""
     case_id = case.id
@@ -83,10 +84,10 @@ def create_evid_dir(case: ModelItem, base_output: str) -> Optional[str]:
 
     # Generate body for Typst
     if not all_page_texts:
-        body = '#mset(values: (opage: 1))\n== Page 1\nNo content available\n\n'
+        body = "#mset(values: (opage: 1))\n== Page 1\nNo content available\n\n"
     else:
         body = "".join(
-            f'#mset(values: (opage: {i + 1}))\n== Page {i + 1}\n{clean_text_for_typst(page_text)}\n\n'
+            f"#mset(values: (opage: {i + 1}))\n== Page {i + 1}\n{clean_text_for_typst(page_text)}\n\n"
             for i, page_text in enumerate(all_page_texts)
         )
 
@@ -106,4 +107,3 @@ def create_evid_dir(case: ModelItem, base_output: str) -> Optional[str]:
 
     logger.info(f"Created EVID directory: {dir_path}")
     return dir_path
-

@@ -10,10 +10,12 @@ from ...model import ModelItem
 
 logger = logging.getLogger(__name__)
 
+
 def process_case(args):
     """Worker function for parallel processing."""
     case, output_dir = args
     return create_evid_dir(case, output_dir) is not None  # Return True if successful
+
 
 def convert_json_to_evid(
     directory: str, output: str, number: Optional[int] = None
