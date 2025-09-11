@@ -19,6 +19,9 @@ domdb -h
 
 ## Usage 
 
+![help](docs/assets/help.svg)
+
+
 ### Download Verdicts
 The `download` command downloads the latest verdicts into the local verdicts storage. 
 ```sh
