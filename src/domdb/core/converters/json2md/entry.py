@@ -40,12 +40,12 @@ def create_md_entry(case: ModelItem) -> dict:
         entry_id = re.sub(r"\W+", "", case_number).lower()
 
         md = f"""- **{case.headline or "No Title"}**
-  - Author: {author}
-  - Court: {court}
-  - Date: {verdict_date}
-  - Publisher: {subjects}
-  - Pages: {case_number}
-  - URL: <https://domsdatabasen.dk/#sag/{case.id or "unknown"}>
+  - {author}
+  - {court}
+  - {verdict_date}
+  - {subjects}
+  - {case_number}
+  - <https://domsdatabasen.dk/#sag/{case.id or "unknown"}>
 """
         logger.info(f"Created Markdown entry for case ID: {entry_id}")
         return {"id": entry_id, "date": verdict_date, "md": md}
