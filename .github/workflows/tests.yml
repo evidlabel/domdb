@@ -22,5 +22,4 @@ jobs:
         uv venv .venv
         source .venv/bin/activate
         uv pip install .[dev]
-        uv run pytest -v . 
-
+        uv run pytest -v .
