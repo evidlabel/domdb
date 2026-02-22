@@ -6,7 +6,7 @@ Tools translating Danish judicial verdicts to bibtex, for use in LaTeX or typst.
 
 ## Features
 - Download Danish judicial verdicts from domsdatabasen.dk
-- Convert JSON verdict data to BibTeX format
+- Convert JSON verdict data to BibTeX and Markdown format
 
 ## Installation
 
@@ -40,6 +40,18 @@ domdb output bib
 domdb output bib -d ./cases -o ./references.bib -n 100
 ```
 
+### JSON to Markdown
+```sh
+# Basic conversion
+domdb output md
+
+# With custom paths and limit
+domdb output md -d ./cases -o ./cases.md -n 100
+
+# Split by year
+domdb output md -s
+```
+
 ### Using the db using [typst](https://typst.app/)
 
 ```bash
@@ -65,11 +77,6 @@ export DOMDB_PASSWORD="your_password"
 Run tests:
 ```sh
 uv run pytest --cov=domdb
-```
-
-Serve documentation locally:
-```sh
-uv run mkdocs serve
 ```
 
 
