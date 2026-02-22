@@ -4,6 +4,7 @@ from treeparse import cli, command, group, option
 
 from .download import download
 from .bib import bib
+from .md import md
 from .j2e import j2e
 
 app = cli(
@@ -53,6 +54,27 @@ bib_cmd = command(
     ],
 )
 output_cmd.commands.append(bib_cmd)
+
+md_cmd = command(
+    name="md",
+    help="Convert JSON case files to Markdown format.",
+    callback=md,
+    options=[
+        option(
+            flags=["-n", "--number"],
+            help="Maximum number of verdicts to process",
+            arg_type=int,
+            default=-1,
+        ),
+        option(
+            flags=["-o", "--output"],
+            help="Output Markdown file path",
+            arg_type=str,
+            default="resources/cases.md",
+        ),
+    ],
+)
+output_cmd.commands.append(md_cmd)
 
 j2e_cmd = command(
     name="j2e",

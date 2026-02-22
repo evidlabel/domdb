@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from pydantic import BaseModel, RootModel, Field
+from pydantic import BaseModel, RootModel, Field, field_validator
 
 
 class CaseSubject(BaseModel):
@@ -163,12 +163,8 @@ class ModelItem(BaseModel):
     verdictStatus: Optional[VerdictStatus] = None
     specialLegalActions: List[SpecialLegalAction] = Field(default_factory=list)
     participants: List[Participant] = Field(default_factory=list)
-    horizontalCotreatmentCases: List[HorizontalCotreatmentCase] = Field(
-        default_factory=list
-    )
-    verticalCotreatmentGroups: List[VerticalCotreatmentGroup] = Field(
-        default_factory=list
-    )
+    horizontalCotreatmentCases: List[HorizontalCotreatmentCase] = Field(default_factory=list)
+    verticalCotreatmentGroups: List[VerticalCotreatmentGroup] = Field(default_factory=list)
     closedCourtroom: Optional[bool] = None
     rightOfAccessExemption: Optional[bool] = None
     liftedOutOfTheSimplifiedProcess: Optional[bool] = None
@@ -185,6 +181,11 @@ class ModelItem(BaseModel):
     officeAbbreviation: Optional[str] = None
     officeName: Optional[str] = None
     author: Optional[str] = None
+
+    @field_validator('horizontalCotreatmentCases', 'verticalCotreatmentGroups', mode='before')
+    @classmethod
+    def validate_lists(cls, v):
+        return v if v is not None else []
 
 
 class Model(RootModel):
