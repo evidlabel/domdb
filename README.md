@@ -49,7 +49,7 @@ domdb output md
 domdb output md -d ./cases -o ./cases.md -n 100
 
 # Split by year
-domdb output md -s
+domdb output md -s True
 ```
 
 ### Using the db using [typst](https://typst.app/)
