@@ -1,38 +1,55 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [project]
 name = "domdb"
-version = "0.1.0"
-description = "Tools for citing Danish judicial verdicts using BibTeX and Markdown."
-authors = [{name = "Your Name", email = "your.email@example.com"}]
-requires-python = ">=3.9"
+version = "0.1.4"
+description = "Tools for citing Danish judicial verdicts in LaTeX"
+authors = [{ name = "evid", email = "95282593+evidlabel@users.noreply.github.com" }]
+requires-python = ">=3.12"
+readme = "README.md"
 dependencies = [
-    "requests",
-    "bibtexparser",
-    "pydantic",
-    "numpy",
-    "beautifulsoup4",
+    "requests>=2.32.3,<3",
+    "bibtexparser>=1.2.0,<2",
+    "pyyaml>=6.0.0,<7",
+    "pydantic>=2.0.0,<3",
+    "numpy>=2.3.0,<3",
     "pdfplumber",
-    "pyyaml",
+    "evid @ git+https://github.com/evidlabel/evid.git",
     "treeparse",
-    "evid",
+    "loguru>=0.7.3",
 ]
 
 [project.scripts]
 domdb = "domdb.cli.main:main"
 
-[tool.ruff]
-line-length = 88
-target-version = "py39"
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0,<8",
+    "pytest-cov>=3.0.0,<4",
+    "pytest-mock>=3.10.0,<4",
+    "black>=23.0.0,<24",
+    "flake8>=6.0.0,<7",
+    "mkdocs>=1.5.3,<2",
+    "mkdocs-material>=9.5.0,<10",
+    "mkdocstrings>=0.24.0,<0.25",
+    "mkdocs-autorefs>=0.5.0,<0.6",
+    "ruff>=0.1.0,<1",
+]
 
-[tool.ruff.lint]
-select = ["E", "F", "W", "C90", "I", "N", "UP", "YTT", "S", "BLE", "FBT", "B", "A", "COM", "C4", "DTZ", "T10", "DJ", "EM", "EXE", "FA", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SLOT", "SIM", "TID", "TCH", "INT", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "FLY", "NPY", "AIR", "PERF", "FURB", "LOG", "RUF"]
-ignore = ["S101", "S104"]
+[tool.hatch.build.targets.sdist]
+include = ["src/domdb"]
 
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+[tool.hatch.build.targets.wheel]
+include = ["src/domdb"]
+
+[tool.hatch.build.targets.wheel.sources]
+"src/domdb" = "domdb"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references=true
+# tool.hatch.metadata.allow-direct-references
+
+[tool.pytest.ini_options]
+addopts = "-v --cov=domdb --cov-report=term-missing"

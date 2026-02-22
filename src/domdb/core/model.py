@@ -163,8 +163,12 @@ class ModelItem(BaseModel):
     verdictStatus: Optional[VerdictStatus] = None
     specialLegalActions: List[SpecialLegalAction] = Field(default_factory=list)
     participants: List[Participant] = Field(default_factory=list)
-    horizontalCotreatmentCases: List[HorizontalCotreatmentCase] = Field(default_factory=list)
-    verticalCotreatmentGroups: List[VerticalCotreatmentGroup] = Field(default_factory=list)
+    horizontalCotreatmentCases: List[HorizontalCotreatmentCase] = Field(
+        default_factory=list
+    )
+    verticalCotreatmentGroups: List[VerticalCotreatmentGroup] = Field(
+        default_factory=list
+    )
     closedCourtroom: Optional[bool] = None
     rightOfAccessExemption: Optional[bool] = None
     liftedOutOfTheSimplifiedProcess: Optional[bool] = None
@@ -182,7 +186,9 @@ class ModelItem(BaseModel):
     officeName: Optional[str] = None
     author: Optional[str] = None
 
-    @field_validator('horizontalCotreatmentCases', 'verticalCotreatmentGroups', mode='before')
+    @field_validator(
+        "horizontalCotreatmentCases", "verticalCotreatmentGroups", mode="before"
+    )
     @classmethod
     def validate_lists(cls, v):
         return v if v is not None else []

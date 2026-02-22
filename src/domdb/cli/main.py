@@ -1,5 +1,3 @@
-import os
-
 from treeparse import cli, command, group, option
 
 from .download import download
@@ -71,6 +69,12 @@ md_cmd = command(
             help="Output Markdown file path",
             arg_type=str,
             default="resources/cases.md",
+        ),
+        option(
+            flags=["-s", "--split-by-year"],
+            help="Split output by year into separate files",
+            arg_type=bool,
+            default=False,
         ),
     ],
 )

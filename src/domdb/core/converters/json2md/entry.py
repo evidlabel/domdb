@@ -1,11 +1,9 @@
 import re
 from datetime import datetime
-import logging
+from loguru import logger
 
 from ...model import ModelItem
 from ....core.exceptions import ConversionError
-
-logger = logging.getLogger(__name__)
 
 
 def create_md_entry(case: ModelItem) -> dict:

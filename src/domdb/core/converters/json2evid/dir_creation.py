@@ -2,18 +2,16 @@ from typing import Optional
 import json
 import os
 import uuid
-import logging
 import base64
 import io
 import yaml
 from bs4 import BeautifulSoup
 import pdfplumber
+from loguru import logger
 from .info_utils import create_info_yml
 from ...model import ModelItem
 from evid.core.label_setup import clean_text_for_typst
 from evid.core.models import InfoModel
-
-logger = logging.getLogger(__name__)
 
 TYPST_TEMPLATE = """#import \"@local/labtyp:0.1.0\": lablist, lab, mset
 

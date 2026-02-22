@@ -1,11 +1,9 @@
 import os
 import json
 from typing import List
-import logging
+from loguru import logger
 
 from ..exceptions import DownloadError
-
-logger = logging.getLogger(__name__)
 
 
 def get_last_saved_page(directory: str) -> int:
