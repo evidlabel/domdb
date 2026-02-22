@@ -1,11 +1,9 @@
 import requests
 from typing import List
-import logging
+from loguru import logger
 
 from .auth import API_BASE_URL
 from ..exceptions import DownloadError
-
-logger = logging.getLogger(__name__)
 
 
 def get_sager(token: str, page_number: int = 1, per_page: int = 100) -> List[dict]:

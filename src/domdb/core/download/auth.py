@@ -1,11 +1,9 @@
 import os
 
 import requests
-import logging
+from loguru import logger
 
 from ..exceptions import DownloadError
-
-logger = logging.getLogger(__name__)
 
 API_BASE_URL = "https://domsdatabasen.dk/webapi/kapi/v2"
 

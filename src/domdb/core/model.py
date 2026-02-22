@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from pydantic import BaseModel, RootModel, Field
+from pydantic import BaseModel, RootModel, Field, field_validator
 
 
 class CaseSubject(BaseModel):
@@ -185,6 +185,13 @@ class ModelItem(BaseModel):
     officeAbbreviation: Optional[str] = None
     officeName: Optional[str] = None
     author: Optional[str] = None
+
+    @field_validator(
+        "horizontalCotreatmentCases", "verticalCotreatmentGroups", mode="before"
+    )
+    @classmethod
+    def validate_lists(cls, v):
+        return v if v is not None else []
 
 
 class Model(RootModel):

@@ -32,7 +32,7 @@ def sample_case():
 def test_create_evid_dir(tmp_path, sample_case):
     base_output = tmp_path / "evid"
     case = ModelItem.model_validate(sample_case)
-    dir_path = create_evid_dir(case, str(base_output))
+    create_evid_dir(case, str(base_output))
     expected_uuid = str(uuid.uuid5(uuid.NAMESPACE_OID, "test123"))
     expected_dir = base_output / expected_uuid
     assert expected_dir.exists()

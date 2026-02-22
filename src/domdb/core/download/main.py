@@ -1,11 +1,8 @@
-import logging
-
+from loguru import logger
 from ..config import load_config
 from .auth import get_access_token
 from .fetch import get_sager
 from .storage import get_last_saved_page, save_cases
-
-logger = logging.getLogger(__name__)
 
 
 def load_next_batch(directory: str) -> int:
