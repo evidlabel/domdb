@@ -1,54 +1,24 @@
-import re
-from datetime import datetime
 from loguru import logger
 
 from ...model import ModelItem
 from ....core.exceptions import ConversionError
+from ..fields import parse_case_fields
 
 
 def create_md_entry(case: ModelItem) -> dict:
     """Create a Markdown entry from a case dictionary."""
     try:
-        author = case.author or case.officeName or "Domstol"
-        profession = (
-            (case.profession.displayText or "Unknown") if case.profession else "Unknown"
-        )
-        instance = (
-            (case.instance.displayText or "Unknown") if case.instance else "Unknown"
-        )
-        case_type = (
-            (case.caseType.displayText or "Unknown") if case.caseType else "Unknown"
-        )
-        court = f"{profession}, {instance}, {case_type}"
-
-        subjects = (
-            ", ".join(s.displayText or "" for s in case.caseSubjects or []) or "Unknown"
-        )
-
-        verdict_date = "Unknown"
-        for doc in case.documents or []:
-            if doc.verdictDateTime and isinstance(doc.verdictDateTime, str):
-                try:
-                    verdict_date = datetime.strptime(
-                        doc.verdictDateTime, "%Y-%m-%dT%H:%M:%S"
-                    ).strftime("%Y-%m-%d")
-                    break
-                except ValueError:
-                    continue
-
-        case_number = case.courtCaseNumber or "unknown"
-        entry_id = re.sub(r"\W+", "", case_number).lower()
-
+        f = parse_case_fields(case)
         md = f"""- **{case.headline or "No Title"}**
-  - {author}
-  - {court}
-  - {verdict_date}
-  - {subjects}
-  - {case_number}
+  - {f["author"]}
+  - {f["court"]}
+  - {f["verdict_date"]}
+  - {f["subjects"]}
+  - {f["case_number"]}
   - <https://domsdatabasen.dk/#sag/{case.id or "unknown"}>
 """
-        logger.info(f"Created Markdown entry for case ID: {entry_id}")
-        return {"id": entry_id, "date": verdict_date, "md": md}
+        logger.info(f"Created Markdown entry for case ID: {f['entry_id']}")
+        return {"id": f["entry_id"], "date": f["verdict_date"], "md": md}
     except Exception as e:
         logger.error(f"Failed to create Markdown entry: {str(e)}")
         raise ConversionError(f"Failed to create Markdown entry: {str(e)}") from e
