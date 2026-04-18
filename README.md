@@ -2,34 +2,30 @@
 
 # domdb
 
-Tools translating Danish judicial verdicts to bibtex, for use in LaTeX or typst.
+Tools translating Danish judicial verdicts to BibTeX or Markdown, for use in LaTeX or typst.
 
 ## Features
 - Download Danish judicial verdicts from domsdatabasen.dk
-- Convert JSON verdict data to BibTeX and Markdown format
+- Convert JSON verdict data to BibTeX, Markdown, or EVID format
 
 ## Installation
 
 ```bash
-uv pip install https://github.com/evidlabel/domdb.git
+uv pip install git+https://github.com/evidlabel/domdb.git
 domdb -h
 ```
 
 **Note**: To use this tool, you must obtain a username and password from [Domsdatabasen](https://domsdatabasen.dk/spoergsmaal-og-svar/api-adgang-til-domsdatabasen/) to access the domsdatabasen.dk API.
 
-## Usage 
+## Usage
 
 ![help](docs/assets/help.svg)
 
-
 ### Download Verdicts
-The `download` command downloads the latest verdicts into the local verdicts storage. 
 ```sh
 domdb download
 ```
-**Note** that each verdict contains the full pdf, which is why `download` only adds the latest and doesn't rerun a full download. 
-
-**Note** that you need to apply for API access in order to use `domdb`.
+Downloads the latest verdicts into the local verdicts storage. Each verdict contains the full PDF, so `download` only fetches new entries rather than re-downloading everything.
 
 ### JSON to BibTeX
 ```sh
@@ -48,14 +44,23 @@ domdb output md
 # With custom paths and limit
 domdb output md -d ./cases -o ./cases.md -n 100
 
-# Split by year
+# Split by year into separate files
 domdb output md -s True
+
+# Filter cases containing a keyword
+domdb output md -k "erstatning"
 ```
 
-### Using the db using [typst](https://typst.app/)
+### JSON to EVID
+```sh
+domdb output j2e
+domdb output j2e -d ./cases -o ./evid -n 100
+```
+
+### Using with [typst](https://typst.app/)
 
 ```bash
-wget https://raw.githubusercontent.com/evidlabel/domdb/master/resources/cases.bib  -O cases.bib
+wget https://raw.githubusercontent.com/evidlabel/domdb/master/resources/cases.bib -O cases.bib
 echo "Citing all verdicts:
 #bibliography(\"cases.bib\",full:true)" > all.typ
 typst compile all.typ
@@ -63,33 +68,29 @@ typst compile all.typ
 
 ## Configuration
 
-1. Set environment variables:
+Set environment variables:
 ```sh
 export DOMDB_USER_ID="your_user_id"
 export DOMDB_PASSWORD="your_password"
 ```
 
-2. Default cases directory: `~/domdatabasen/cases`
-    - Override with `-d/--directory` flag
+Default cases directory: `~/domdatabasen/cases` — override with `-d/--directory`.
 
 ## Development
 
-Run tests:
 ```sh
-uv run pytest --cov=domdb
+uv run pytest
 ```
-
 
 ## License
 MIT License
 
-
 ## Disclaimer
 
-`domdb` is a tool for converting a publicly available Danish database of verdicts into BibTeX format for use in LaTeX or typst. 
-It does *not* provide legal advice or interpret legal content. 
+`domdb` is a tool for converting a publicly available Danish database of verdicts into BibTeX format for use in LaTeX or typst.
+It does *not* provide legal advice or interpret legal content.
 
-The tool processes and represents data from `domsdatabasen.dk` which is a public source, without modification to the original content, other than for the purposes of correct rendering in LaTeX. 
+The tool processes and represents data from `domsdatabasen.dk` which is a public source, without modification to the original content, other than for the purposes of correct rendering in LaTeX.
 
 Users are responsible for verifying the accuracy and applicability of the data for their purposes.
 
