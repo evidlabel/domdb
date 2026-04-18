@@ -54,4 +54,4 @@ def create_bib_entry(case: ModelItem) -> dict:
         return entry
     except Exception as e:
         logger.error(f"Failed to create BibTeX entry: {str(e)}")
-        raise ConversionError(f"Failed to create BibTeX entry: {str(e)}")
+        raise ConversionError(f"Failed to create BibTeX entry: {str(e)}") from e

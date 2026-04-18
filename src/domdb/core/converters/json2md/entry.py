@@ -51,4 +51,4 @@ def create_md_entry(case: ModelItem) -> dict:
         return {"id": entry_id, "date": verdict_date, "md": md}
     except Exception as e:
         logger.error(f"Failed to create Markdown entry: {str(e)}")
-        raise ConversionError(f"Failed to create Markdown entry: {str(e)}")
+        raise ConversionError(f"Failed to create Markdown entry: {str(e)}") from e
