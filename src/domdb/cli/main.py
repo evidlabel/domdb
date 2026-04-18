@@ -1,3 +1,5 @@
+import os
+
 from treeparse import cli, command, group, option
 
 from .download import download
@@ -75,6 +77,12 @@ md_cmd = command(
             help="Split output by year into separate files",
             arg_type=bool,
             default=False,
+        ),
+        option(
+            flags=["-k", "--keyword"],
+            help="Filter cases containing the keyword (case insensitive)",
+            arg_type=str,
+            default=None,
         ),
     ],
 )
