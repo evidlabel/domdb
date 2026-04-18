@@ -4,7 +4,6 @@ import os
 from typing import Optional
 import bibtexparser as bib
 from loguru import logger
-import numpy as np
 from pydantic import ValidationError
 
 from .entry import create_bib_entry
@@ -58,10 +57,7 @@ def convert_json_to_bib(
     database.entries = unique_entries
     logger.info(f"After deduplication: {len(database.entries)} unique cases")
 
-    # Sort using numpy for vectorization example (though simple sort suffices)
-    dates = np.array([entry.get("date", "0000-00-00") for entry in database.entries])
-    sorted_indices = np.argsort(dates)[::-1]
-    database.entries = [database.entries[i] for i in sorted_indices]
+    database.entries = sorted(database.entries, key=lambda e: e.get("date", ""), reverse=True)
     logger.info(f"Sorted {len(database.entries)} cases by date descending")
 
     logger.info(f"Writing BibTeX output to {output}")

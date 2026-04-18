@@ -3,7 +3,6 @@ import json
 import os
 from typing import Optional
 from collections import defaultdict
-import numpy as np
 from loguru import logger
 from pydantic import ValidationError
 
@@ -13,10 +12,7 @@ from ...model import ModelItem
 
 
 def convert_json_to_md(
-    directory: str,
-    output: str,
-    number: Optional[int] = None,
-    split_by_year: bool = False,
+    directory: str, output: str, number: Optional[int] = None, split_by_year: bool = False, keyword: Optional[str] = None
 ) -> int:
     """Convert JSON case files to Markdown format."""
     logger.info(f"Loading verdicts from directory: {directory}")
@@ -46,6 +42,8 @@ def convert_json_to_md(
                 if number and count >= number:
                     break
                 entry = create_md_entry(case)
+                if keyword and keyword.lower() not in entry["md"].lower():
+                    continue
                 entries.append(entry)
                 count += 1
                 processed_count += 1
@@ -64,15 +62,11 @@ def convert_json_to_md(
     # Separate known and unknown dates
     known_entries = [e for e in entries if e["date"] != "Unknown"]
     unknown_entries = [e for e in entries if e["date"] == "Unknown"]
-    logger.info(
-        f"Cases with known dates: {len(known_entries)}, unknown: {len(unknown_entries)}"
-    )
+    logger.info(f"Cases with known dates: {len(known_entries)}, unknown: {len(unknown_entries)}")
 
     # Sort known entries by date descending
     if known_entries:
-        dates = np.array([e["date"] for e in known_entries])
-        sorted_indices = np.argsort(dates)[::-1]
-        known_entries = [known_entries[i] for i in sorted_indices]
+        known_entries = sorted(known_entries, key=lambda e: e["date"], reverse=True)
         logger.info(f"Sorted {len(known_entries)} cases with known dates descending")
 
     # Combine: known (sorted desc) then unknown
