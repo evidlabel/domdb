@@ -1,6 +1,7 @@
 import pytest
 
 from domdb.cli.bib import bib
+from domdb.cli.hay import hay
 from domdb.cli.j2e import j2e
 from domdb.cli.download import download
 from domdb.cli.main import main
@@ -27,6 +28,28 @@ def test_bib_error(mocker, capsys):
     captured = capsys.readouterr()
     assert "error" in captured.err
     mock_convert.assert_called_once_with("dir", "out.bib", 10)
+
+
+def test_hay_success(mocker, capsys):
+    """Test successful Hayagriva conversion."""
+    mock_convert = mocker.patch("domdb.cli.hay.convert_json_to_hay", return_value=5)
+    hay(-1, "dir", "out.yml")
+    captured = capsys.readouterr()
+    assert "Converted 5 unique cases to out.yml" in captured.out
+    mock_convert.assert_called_once_with("dir", "out.yml", None)
+
+
+def test_hay_error(mocker, capsys):
+    """Test Hayagriva conversion error."""
+    mock_convert = mocker.patch(
+        "domdb.cli.hay.convert_json_to_hay", side_effect=ConversionError("error")
+    )
+    with pytest.raises(SystemExit) as excinfo:
+        hay(10, "dir", "out.yml")
+    assert excinfo.value.code == 1
+    captured = capsys.readouterr()
+    assert "error" in captured.err
+    mock_convert.assert_called_once_with("dir", "out.yml", 10)
 
 
 def test_j2e_success(mocker, capsys):

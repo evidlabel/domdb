@@ -3,11 +3,11 @@ import json
 import os
 from typing import Optional
 from collections import defaultdict
-import numpy as np
 from loguru import logger
 from pydantic import ValidationError
 
 from .entry import create_md_entry
+from .filter import case_matches_keywords, normalize_keywords
 from ....core.exceptions import ConversionError
 from ...model import ModelItem
 
@@ -17,9 +17,14 @@ def convert_json_to_md(
     output: str,
     number: Optional[int] = None,
     split_by_year: bool = False,
+    keywords: Optional[list[str]] = None,
+    full_text: bool = False,
 ) -> int:
     """Convert JSON case files to Markdown format."""
+    norm_keywords = normalize_keywords(keywords)
     logger.info(f"Loading verdicts from directory: {directory}")
+    if norm_keywords and full_text:
+        logger.info("Full-text mode on: extracting verdict body text (PDF extraction may be slow)")
     entries = []
 
     json_files = glob.glob(f"{directory}/*.json")
@@ -41,10 +46,12 @@ def convert_json_to_md(
                         logger.error("Skipping case without id")
                         continue
                 except ValidationError as e:
-                    logger.error(f"Invalid case data: {str(e)}")
+                    logger.error(f"Invalid case data: {e!s}")
                     continue
                 if number and count >= number:
                     break
+                if not case_matches_keywords(case, norm_keywords, full_text=full_text):
+                    continue
                 entry = create_md_entry(case)
                 entries.append(entry)
                 count += 1
@@ -64,15 +71,11 @@ def convert_json_to_md(
     # Separate known and unknown dates
     known_entries = [e for e in entries if e["date"] != "Unknown"]
     unknown_entries = [e for e in entries if e["date"] == "Unknown"]
-    logger.info(
-        f"Cases with known dates: {len(known_entries)}, unknown: {len(unknown_entries)}"
-    )
+    logger.info(f"Cases with known dates: {len(known_entries)}, unknown: {len(unknown_entries)}")
 
     # Sort known entries by date descending
     if known_entries:
-        dates = np.array([e["date"] for e in known_entries])
-        sorted_indices = np.argsort(dates)[::-1]
-        known_entries = [known_entries[i] for i in sorted_indices]
+        known_entries = sorted(known_entries, key=lambda e: e["date"], reverse=True)
         logger.info(f"Sorted {len(known_entries)} cases with known dates descending")
 
     # Combine: known (sorted desc) then unknown

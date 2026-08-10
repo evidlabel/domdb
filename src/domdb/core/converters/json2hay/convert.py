@@ -2,22 +2,22 @@ import glob
 import json
 import os
 from typing import Optional
-import bibtexparser as bib
+
+import yaml
 from loguru import logger
 from pydantic import ValidationError
 
-from .entry import create_bib_entry
+from .entry import create_hay_entry
 from ....core.exceptions import ConversionError
 from ...model import ModelItem
 
 
-def convert_json_to_bib(
+def convert_json_to_hay(
     directory: str, output: str, number: Optional[int] = None
 ) -> int:
-    """Convert JSON case files to BibTeX format."""
+    """Convert JSON case files to Hayagriva YAML format."""
     logger.info(f"Loading verdicts from directory: {directory}")
-    database = bib.bibdatabase.BibDatabase()
-    database.entries = []
+    entries: dict[str, dict] = {}
 
     json_files = glob.glob(f"{directory}/*.json")
     logger.info(f"Found {len(json_files)} JSON files")
@@ -42,28 +42,37 @@ def convert_json_to_bib(
                     continue
                 if number and count >= number:
                     break
-                database.entries.append(create_bib_entry(case))
-                count += 1
-                processed_count += 1
+                key, entry = create_hay_entry(case)
+                if key not in entries:
+                    entries[key] = entry
+                    count += 1
+                    processed_count += 1
             logger.info(f"Processed {processed_count} valid cases from {file_path}")
 
-    # Remove duplicate entries based on ID
-    seen = set()
-    unique_entries = []
-    for entry in database.entries:
-        if entry["ID"] not in seen:
-            unique_entries.append(entry)
-            seen.add(entry["ID"])
-    database.entries = unique_entries
-    logger.info(f"After deduplication: {len(database.entries)} unique cases")
+    logger.info(f"After deduplication: {len(entries)} unique cases")
 
-    database.entries = sorted(database.entries, key=lambda e: e.get("date", ""), reverse=True)
-    logger.info(f"Sorted {len(database.entries)} cases by date descending")
+    # Sort by date descending (newest first), stable key fallback
+    sorted_items = sorted(
+        entries.items(),
+        key=lambda kv: kv[1].get("date") or "",
+        reverse=True,
+    )
+    ordered = dict(sorted_items)
+    logger.info(f"Sorted {len(ordered)} cases by date descending")
 
-    logger.info(f"Writing BibTeX output to {output}")
-    os.makedirs(os.path.dirname(output), exist_ok=True)
+    logger.info(f"Writing Hayagriva YAML output to {output}")
+    parent = os.path.dirname(output)
+    if parent:
+        os.makedirs(parent, exist_ok=True)
     with open(output, "w", encoding="utf-8") as f:
-        writer = bib.bwriter.BibTexWriter()
-        f.write(writer.write(database))
-    logger.info(f"Converted {len(database.entries)} unique cases to {output}")
-    return len(database.entries)
+        f.write("# generated-by: domdb output hay\n")
+        yaml.safe_dump(
+            ordered,
+            f,
+            allow_unicode=True,
+            default_flow_style=False,
+            sort_keys=False,
+            width=1000,
+        )
+    logger.info(f"Converted {len(ordered)} unique cases to {output}")
+    return len(ordered)

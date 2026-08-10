@@ -1,6 +1,6 @@
 [project]
 name = "domdb"
-version = "0.1.4"
+version = "0.1.5"
 description = "Tools for citing Danish judicial verdicts in LaTeX"
 authors = [{ name = "evid", email = "95282593+evidlabel@users.noreply.github.com" }]
 requires-python = ">=3.12"
@@ -10,10 +10,9 @@ dependencies = [
     "bibtexparser>=1.2.0,<2",
     "pyyaml>=6.0.0,<7",
     "pydantic>=2.0.0,<3",
-    "numpy>=2.3.0,<3",
     "pdfplumber",
     "evid @ git+https://github.com/evidlabel/evid.git",
-    "treeparse",
+    "treeparse>=0.3.1",
     "loguru>=0.7.3",
 ]
 

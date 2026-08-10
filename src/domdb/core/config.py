@@ -4,6 +4,7 @@ import tomllib
 DEFAULT_CONFIG = {
     "cases_directory": "~/domdatabasen/cases",
     "bib_output": "resources/cases.bib",
+    "hay_output": "resources/cases.yml",
     "batch_size": 25,
 }
 
