@@ -11,3 +11,10 @@ __temp.*
 .grkrc
 codefold.*
 admin.sh
+
+# Generated outputs (default CLI destinations)
+resources/*.bib
+resources/*.yml
+resources/*.yaml
+resources/*.md
+evid/

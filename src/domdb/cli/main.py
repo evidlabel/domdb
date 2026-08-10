@@ -5,6 +5,7 @@ from treeparse.utils.color_config import color_theme
 
 from .download import download
 from .bib import bib
+from .hay import hay
 from .md import md
 from .j2e import j2e
 from .query import query_count, query_index, query_list
@@ -57,6 +58,27 @@ bib_cmd = command(
     ],
 )
 output_cmd.commands.append(bib_cmd)
+
+hay_cmd = command(
+    name="hay",
+    help="Convert JSON case files to Hayagriva YAML format (for Typst).",
+    callback=hay,
+    options=[
+        option(
+            flags=["-n", "--number"],
+            help="Maximum number of verdicts to process",
+            arg_type=int,
+            default=-1,
+        ),
+        option(
+            flags=["-o", "--output"],
+            help="Output Hayagriva YAML file path",
+            arg_type=str,
+            default="resources/cases.yml",
+        ),
+    ],
+)
+output_cmd.commands.append(hay_cmd)
 
 md_cmd = command(
     name="md",

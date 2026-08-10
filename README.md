@@ -1,12 +1,15 @@
-![Deploy](https://github.com/evidlabel/domdb/actions/workflows/tests.yml/badge.svg)![Version](https://img.shields.io/github/v/release/evidlabel/domdb)
+[![Tests](https://github.com/evidlabel/domdb/actions/workflows/tests.yml/badge.svg)](https://github.com/evidlabel/domdb/actions/workflows/tests.yml)
+[![Release](https://img.shields.io/github/v/release/evidlabel/domdb)](https://github.com/evidlabel/domdb/releases)
+[![Python](https://img.shields.io/badge/python-%3E%3D3.12-blue)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 # domdb
 
-Tools translating Danish judicial verdicts to BibTeX or Markdown, for use in LaTeX or typst.
+Tools translating Danish judicial verdicts to BibTeX, Hayagriva YAML, or Markdown, for use in LaTeX or Typst.
 
 ## Features
 - Download Danish judicial verdicts from domsdatabasen.dk
-- Convert JSON verdict data to BibTeX, Markdown, or EVID format
+- Convert JSON verdict data to BibTeX, Hayagriva YAML, Markdown, or EVID format
 
 ## Installation
 
@@ -35,6 +38,17 @@ domdb output bib
 # With custom paths and limit
 domdb output bib -d ./cases -o ./references.bib -n 100
 ```
+
+### JSON to Hayagriva YAML (Typst)
+```sh
+# Basic conversion → resources/cases.yml
+domdb output hay
+
+# With custom paths and limit
+domdb output hay -d ./cases -o ./references.yml -n 100
+```
+
+Each entry uses Hayagriva `type: Case` with title, court author, date, case number (`serial-number`), subjects, and URL. Use with Typst `#bibliography("references.yml")`.
 
 ### JSON to Markdown
 ```sh
@@ -95,9 +109,15 @@ Paragraph search checks headlines, metadata, and indexed HTML body text. Use `--
 ### Using with [typst](https://typst.app/)
 
 ```bash
-wget https://raw.githubusercontent.com/evidlabel/domdb/master/resources/cases.bib -O cases.bib
-echo "Citing all verdicts:
-#bibliography(\"cases.bib\",full:true)" > all.typ
+# Preferred: Hayagriva YAML from the local case cache
+domdb output hay -o cases.yml
+
+echo '#bibliography("cases.yml", full: true)' > all.typ
+typst compile all.typ
+
+# Or BibTeX (also accepted by Typst)
+domdb output bib -o cases.bib
+echo '#bibliography("cases.bib", full: true)' > all.typ
 typst compile all.typ
 ```
 
@@ -114,6 +134,13 @@ Default cases directory: `~/domdatabasen/cases` — override with `-d/--director
 ## Development
 
 ```sh
+make          # list targets (run / docs / bib / hay / test / …)
+make run      # download latest verdicts
+make docs     # show CLI help
+make bib      # compile case cache → resources/cases.bib
+make hay      # compile case cache → resources/cases.yml (Hayagriva)
+make bib N=100 BIB_OUT=cases.bib
+make hay N=100 HAY_OUT=cases.yml
 uv run pytest
 ```
 
