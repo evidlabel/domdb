@@ -8,5 +8,6 @@ pytest.log
 __temp.*
 .vscode/
 .grk_*
+.grkrc
 codefold.*
 admin.sh

@@ -2,13 +2,10 @@ from typing import Optional
 import json
 import os
 import uuid
-import base64
-import io
 import yaml
-from bs4 import BeautifulSoup
-import pdfplumber
 from loguru import logger
 from .info_utils import create_info_yml
+from ..text_utils import extract_case_page_texts
 from ...model import ModelItem
 from evid.core.label_setup import clean_text_for_typst
 from evid.core.models import InfoModel
@@ -63,22 +60,7 @@ def create_evid_dir(case: ModelItem, base_output: str) -> Optional[str]:
         yaml.dump(info, f, default_flow_style=False)
 
     # Collect all page texts from documents
-    all_page_texts = []
-    for doc in case.documents or []:
-        if doc.contentHtml:
-            soup = BeautifulSoup(doc.contentHtml, "html.parser")
-            text = soup.get_text(separator="\n", strip=True)
-            all_page_texts.append(text)
-        elif doc.contentPdf:
-            try:
-                pdf_bytes = base64.b64decode(doc.contentPdf)
-                with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
-                    page_texts = [page.extract_text() or "" for page in pdf.pages]
-                    all_page_texts.extend(page_texts)
-            except Exception as e:
-                logger.warning(
-                    f"Failed to extract text from PDF for doc {doc.id or 'unknown'}: {e}"
-                )
+    all_page_texts = extract_case_page_texts(case)
 
     # Generate body for Typst
     if not all_page_texts:

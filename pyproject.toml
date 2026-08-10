@@ -12,7 +12,7 @@ dependencies = [
     "pydantic>=2.0.0,<3",
     "pdfplumber",
     "evid @ git+https://github.com/evidlabel/evid.git",
-    "treeparse",
+    "treeparse>=0.3.1",
     "loguru>=0.7.3",
 ]
 

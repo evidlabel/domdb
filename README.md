@@ -47,8 +47,15 @@ domdb output md -d ./cases -o ./cases.md -n 100
 # Split by year into separate files
 domdb output md -s True
 
-# Filter cases containing a keyword
+# Filter cases containing a keyword (matches case metadata only)
 domdb output md -k "erstatning"
+
+# Require multiple keywords (space-separated after a single -k, AND semantics)
+domdb output md -k "psykisk vold" "krisecenter"
+
+# Search the full verdict body text (HTML/PDF), not just metadata.
+# This finds words like "krisecenter" that only appear in the document body.
+domdb output md -k "psykisk vold" "krisecenter" --full-text -o resources/psykvold_krisecenter.md
 ```
 
 ### JSON to EVID
@@ -56,6 +63,34 @@ domdb output md -k "erstatning"
 domdb output j2e
 domdb output j2e -d ./cases -o ./evid -n 100
 ```
+
+Scanned (image-only) PDFs are skipped during text extraction rather than emitting empty per-page sections.
+
+### Query cached verdicts (legal research)
+
+Build a metadata index once after downloading; queries then filter by date, court, subject, keywords, and legal paragraph references.
+
+```sh
+# Index the cache (fast date/court/subject/body filtering)
+domdb -d ~/domdatabasen/cases query index
+
+# Count verdicts citing straffeloven § 237 between 2015 and 2024
+domdb -d ~/domdatabasen/cases query count -p "straffeloven § 237" --from 2015-01-01 --to 2024-12-31
+
+# Count verdicts mentioning a paragraph in a specific year
+domdb -d ~/domdatabasen/cases query count -p "§ 117 stk. 1" --from 2020-01-01 --to 2020-12-31
+
+# Find words in verdict body text (HTML/PDF extraction)
+domdb -d ~/domdatabasen/cases query count -k "krisecenter" --full-text
+
+# List matching verdicts (JSON for scripts)
+domdb -d ~/domdatabasen/cases query list -k "psykisk vold" --full-text -n 20 --format json
+
+# Combine paragraph, keywords, court, and date range
+domdb -d ~/domdatabasen/cases query list -p "straffeloven § 237" -k "vold" --court "Østre Landsret" --from 2018-01-01
+```
+
+Paragraph search checks headlines, metadata, and indexed HTML body text. Use `--full-text` to also search PDF-only verdicts (slower). Keyword search uses metadata only unless `--full-text` is set. Re-run `query index` after downloading new cases.
 
 ### Using with [typst](https://typst.app/)
 

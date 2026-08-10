@@ -7,15 +7,24 @@ from loguru import logger
 from pydantic import ValidationError
 
 from .entry import create_md_entry
+from .filter import case_matches_keywords, normalize_keywords
 from ....core.exceptions import ConversionError
 from ...model import ModelItem
 
 
 def convert_json_to_md(
-    directory: str, output: str, number: Optional[int] = None, split_by_year: bool = False, keyword: Optional[str] = None
+    directory: str,
+    output: str,
+    number: Optional[int] = None,
+    split_by_year: bool = False,
+    keywords: Optional[list[str]] = None,
+    full_text: bool = False,
 ) -> int:
     """Convert JSON case files to Markdown format."""
+    norm_keywords = normalize_keywords(keywords)
     logger.info(f"Loading verdicts from directory: {directory}")
+    if norm_keywords and full_text:
+        logger.info("Full-text mode on: extracting verdict body text (PDF extraction may be slow)")
     entries = []
 
     json_files = glob.glob(f"{directory}/*.json")
@@ -37,13 +46,13 @@ def convert_json_to_md(
                         logger.error("Skipping case without id")
                         continue
                 except ValidationError as e:
-                    logger.error(f"Invalid case data: {str(e)}")
+                    logger.error(f"Invalid case data: {e!s}")
                     continue
                 if number and count >= number:
                     break
-                entry = create_md_entry(case)
-                if keyword and keyword.lower() not in entry["md"].lower():
+                if not case_matches_keywords(case, norm_keywords, full_text=full_text):
                     continue
+                entry = create_md_entry(case)
                 entries.append(entry)
                 count += 1
                 processed_count += 1
