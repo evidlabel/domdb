@@ -80,8 +80,13 @@ def _load_case_from_file(path: str, case_id: str) -> ModelItem | None:
     return None
 
 
-def _needs_body_search(params: QueryParams, paragraph_spec: ParagraphSpec | None) -> bool:
-    return bool((params.full_text and params.keywords) or (paragraph_spec and paragraph_spec.section))
+def _needs_body_search(
+    params: QueryParams, paragraph_spec: ParagraphSpec | None
+) -> bool:
+    return bool(
+        (params.full_text and params.keywords)
+        or (paragraph_spec and paragraph_spec.section)
+    )
 
 
 def _haystack_matches(
@@ -196,7 +201,9 @@ def _iter_hits(directory: str, params: QueryParams):
                 yield _case_hit_from_index(row)
         return
 
-    logger.info("No query index found; scanning JSON cache (run `domdb query index` for speed)")
+    logger.info(
+        "No query index found; scanning JSON cache (run `domdb query index` for speed)"
+    )
     from ..converters.fields import parse_case_fields
 
     for case, _source in iter_cached_cases(directory):

@@ -88,8 +88,8 @@ class TestMarkdownConversion:
         assert output_file.exists()
         content = output_file.read_text(encoding="utf-8")
         # Sorted descending: 2023 first, 2022 second, no-date last
-        idx_one = content.find("Case One")    # 2023-05-01
-        idx_two = content.find("Case Two")    # 2022-03-15
+        idx_one = content.find("Case One")  # 2023-05-01
+        idx_two = content.find("Case Two")  # 2022-03-15
         idx_three = content.find("Case Three")  # no verdict date
         assert idx_one < idx_two < idx_three
 

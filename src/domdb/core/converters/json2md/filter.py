@@ -1,5 +1,3 @@
-from typing import Optional
-
 from ...model import ModelItem
 from ...query.search import (
     metadata_search_text,

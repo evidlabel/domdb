@@ -1,15 +1,11 @@
-import glob
-import json
 import os
 from typing import Optional
 from collections import defaultdict
 from loguru import logger
-from pydantic import ValidationError
 
 from .entry import create_md_entry
 from .filter import case_matches_keywords, normalize_keywords
-from ....core.exceptions import ConversionError
-from ...model import ModelItem
+from ..case_load import load_cases
 
 
 def convert_json_to_md(
@@ -22,41 +18,23 @@ def convert_json_to_md(
 ) -> int:
     """Convert JSON case files to Markdown format."""
     norm_keywords = normalize_keywords(keywords)
-    logger.info(f"Loading verdicts from directory: {directory}")
     if norm_keywords and full_text:
-        logger.info("Full-text mode on: extracting verdict body text (PDF extraction may be slow)")
+        logger.info(
+            "Full-text mode on: extracting verdict body text (PDF extraction may be slow)"
+        )
+
+    # Load all cases; number is applied after keyword filter so the cap counts matches.
+    cases = load_cases(directory)
     entries = []
-
-    json_files = glob.glob(f"{directory}/*.json")
-    logger.info(f"Found {len(json_files)} JSON files")
-    if not json_files:
-        raise ConversionError(f"No JSON files found in {directory}")
-
     count = 0
-    for file_path in json_files:
-        logger.info(f"Processing file: {file_path}")
-        with open(file_path, "r", encoding="utf-8") as f:
-            cases_data = json.load(f)
-            logger.info(f"Loaded {len(cases_data)} raw cases from {file_path}")
-            processed_count = 0
-            for case_data in cases_data:
-                try:
-                    case = ModelItem.model_validate(case_data)
-                    if not case.id:
-                        logger.error("Skipping case without id")
-                        continue
-                except ValidationError as e:
-                    logger.error(f"Invalid case data: {e!s}")
-                    continue
-                if number and count >= number:
-                    break
-                if not case_matches_keywords(case, norm_keywords, full_text=full_text):
-                    continue
-                entry = create_md_entry(case)
-                entries.append(entry)
-                count += 1
-                processed_count += 1
-            logger.info(f"Processed {processed_count} valid cases from {file_path}")
+    for case in cases:
+        if number and count >= number:
+            break
+        if not case_matches_keywords(case, norm_keywords, full_text=full_text):
+            continue
+        entry = create_md_entry(case)
+        entries.append(entry)
+        count += 1
 
     # Remove duplicates based on ID
     seen = set()
@@ -71,7 +49,9 @@ def convert_json_to_md(
     # Separate known and unknown dates
     known_entries = [e for e in entries if e["date"] != "Unknown"]
     unknown_entries = [e for e in entries if e["date"] == "Unknown"]
-    logger.info(f"Cases with known dates: {len(known_entries)}, unknown: {len(unknown_entries)}")
+    logger.info(
+        f"Cases with known dates: {len(known_entries)}, unknown: {len(unknown_entries)}"
+    )
 
     # Sort known entries by date descending
     if known_entries:
