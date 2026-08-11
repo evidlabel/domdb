@@ -1,4 +1,5 @@
 import json
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from loguru import logger
@@ -49,6 +50,19 @@ class CaseHit:
         }
 
 
+@dataclass(frozen=True)
+class SearchableCase:
+    """Searchable text surface shared by cache-scan and index match paths.
+
+    ``body_text`` / ``full_text`` are callables so HTML extraction and PDF load
+    stay lazy until keyword/paragraph matching actually needs them.
+    """
+
+    metadata_text: str
+    body_text: Callable[[], str] = field(repr=False, hash=False, compare=False)
+    full_text: Callable[[], str | None] = field(repr=False, hash=False, compare=False)
+
+
 def _case_hit(case: ModelItem, fields: dict[str, str]) -> CaseHit:
     return CaseHit(
         id=case.id or "",
@@ -80,6 +94,28 @@ def _load_case_from_file(path: str, case_id: str) -> ModelItem | None:
     return None
 
 
+def _searchable_from_case(case: ModelItem) -> SearchableCase:
+    return SearchableCase(
+        metadata_text=metadata_search_text(case),
+        body_text=lambda: html_body_search_text(case),
+        full_text=lambda: extract_case_text(case).lower(),
+    )
+
+
+def _searchable_from_index(row: IndexedCase) -> SearchableCase:
+    def full_text() -> str | None:
+        case = _load_case_from_file(row.source_file, row.id)
+        if case is None:
+            return None
+        return extract_case_text(case).lower()
+
+    return SearchableCase(
+        metadata_text=row.metadata_text,
+        body_text=lambda: row.body_text,
+        full_text=full_text,
+    )
+
+
 def _needs_body_search(
     params: QueryParams, paragraph_spec: ParagraphSpec | None
 ) -> bool:
@@ -89,7 +125,7 @@ def _needs_body_search(
     )
 
 
-def _haystack_matches(
+def _text_matches(
     haystack: str,
     keywords: list[str],
     paragraph_spec: ParagraphSpec | None,
@@ -102,27 +138,40 @@ def _haystack_matches(
     return True
 
 
-def _metadata_matches(
-    metadata: str,
-    keywords: list[str],
-    paragraph_spec: ParagraphSpec | None,
-) -> bool:
-    if not text_contains_keywords(metadata, keywords):
-        return False
-    if paragraph_spec and paragraph_spec.section:
-        if not text_matches_paragraph(metadata, paragraph_spec):
-            return False
-    return True
-
-
-def _case_matches(
-    case: ModelItem,
+def _matches(
+    case: SearchableCase,
     params: QueryParams,
     keywords: list[str],
     paragraph_spec: ParagraphSpec | None,
+) -> bool:
+    """Keyword / paragraph / full-text match against a searchable case."""
+    if _text_matches(case.metadata_text, keywords, paragraph_spec):
+        return True
+    if not _needs_body_search(params, paragraph_spec):
+        return False
+
+    haystack = case.metadata_text + "\n" + case.body_text()
+    if _text_matches(haystack, keywords, paragraph_spec):
+        return True
+    if not params.full_text:
+        return False
+
+    body = case.full_text()
+    if body is None:
+        return False
+    return _text_matches(case.metadata_text + "\n" + body, keywords, paragraph_spec)
+
+
+def _scan_filters_match(
+    case: ModelItem,
+    params: QueryParams,
     from_d,
     to_d,
 ) -> bool:
+    """Date / court / subject filters for the full JSON cache scan path.
+
+    The index path applies the same filters in SQL via ``fetch_indexed_cases``.
+    """
     from ..converters.fields import parse_case_fields
 
     if not date_in_range(case_verdict_date(case), from_d, to_d):
@@ -137,47 +186,7 @@ def _case_matches(
     if params.subject:
         if params.subject.lower() not in fields["subjects"].lower():
             return False
-
-    metadata = metadata_search_text(case)
-    if _metadata_matches(metadata, keywords, paragraph_spec):
-        return True
-
-    if not _needs_body_search(params, paragraph_spec):
-        return False
-
-    html_body = html_body_search_text(case)
-    if _haystack_matches(metadata + "\n" + html_body, keywords, paragraph_spec):
-        return True
-    if not params.full_text:
-        return False
-
-    body = extract_case_text(case).lower()
-    return _haystack_matches(metadata + "\n" + body, keywords, paragraph_spec)
-
-
-def _indexed_row_matches(
-    row: IndexedCase,
-    params: QueryParams,
-    keywords: list[str],
-    paragraph_spec: ParagraphSpec | None,
-) -> bool:
-    if _metadata_matches(row.metadata_text, keywords, paragraph_spec):
-        return True
-    if not _needs_body_search(params, paragraph_spec):
-        return False
-
-    haystack = row.metadata_text + "\n" + row.body_text
-    if _haystack_matches(haystack, keywords, paragraph_spec):
-        return True
-    if not params.full_text:
-        return False
-
-    case = _load_case_from_file(row.source_file, row.id)
-    if case is None:
-        return False
-
-    body = extract_case_text(case).lower()
-    return _haystack_matches(row.metadata_text + "\n" + body, keywords, paragraph_spec)
+    return True
 
 
 def _iter_hits(directory: str, params: QueryParams):
@@ -197,7 +206,7 @@ def _iter_hits(directory: str, params: QueryParams):
             subject=params.subject,
         )
         for row in rows:
-            if _indexed_row_matches(row, params, keywords, paragraph_spec):
+            if _matches(_searchable_from_index(row), params, keywords, paragraph_spec):
                 yield _case_hit_from_index(row)
         return
 
@@ -207,7 +216,9 @@ def _iter_hits(directory: str, params: QueryParams):
     from ..converters.fields import parse_case_fields
 
     for case, _source in iter_cached_cases(directory):
-        if _case_matches(case, params, keywords, paragraph_spec, from_d, to_d):
+        if not _scan_filters_match(case, params, from_d, to_d):
+            continue
+        if _matches(_searchable_from_case(case), params, keywords, paragraph_spec):
             yield _case_hit(case, parse_case_fields(case))
 
 
