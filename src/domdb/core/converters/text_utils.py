@@ -50,13 +50,9 @@ def extract_case_page_texts(case: ModelItem) -> list[str]:
                             f"Skipping scanned (no extractable text) PDF for doc {doc_id}"
                         )
                         continue
-                    page_texts.extend(
-                        page.extract_text() or "" for page in pdf.pages
-                    )
+                    page_texts.extend(page.extract_text() or "" for page in pdf.pages)
             except Exception as e:
-                logger.warning(
-                    f"Failed to extract text from PDF for doc {doc_id}: {e}"
-                )
+                logger.warning(f"Failed to extract text from PDF for doc {doc_id}: {e}")
     return page_texts
 
 

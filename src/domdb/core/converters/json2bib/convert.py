@@ -28,7 +28,9 @@ def convert_json_to_bib(
     database.entries = unique_entries
     logger.info(f"After deduplication: {len(database.entries)} unique cases")
 
-    database.entries = sorted(database.entries, key=lambda e: e.get("date", ""), reverse=True)
+    database.entries = sorted(
+        database.entries, key=lambda e: e.get("date", ""), reverse=True
+    )
     logger.info(f"Sorted {len(database.entries)} cases by date descending")
 
     logger.info(f"Writing BibTeX output to {output}")

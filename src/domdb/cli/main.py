@@ -1,5 +1,3 @@
-import os
-
 from treeparse import cli, command, group, option
 from treeparse.utils.color_config import color_theme
 

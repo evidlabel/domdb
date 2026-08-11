@@ -1,8 +1,5 @@
-import re
-
 from domdb.core.query.paragraph import (
     parse_paragraph_query,
-    paragraph_pattern,
     text_matches_paragraph,
 )
 

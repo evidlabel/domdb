@@ -19,7 +19,9 @@ def convert_json_to_md(
     """Convert JSON case files to Markdown format."""
     norm_keywords = normalize_keywords(keywords)
     if norm_keywords and full_text:
-        logger.info("Full-text mode on: extracting verdict body text (PDF extraction may be slow)")
+        logger.info(
+            "Full-text mode on: extracting verdict body text (PDF extraction may be slow)"
+        )
 
     # Load all cases; number is applied after keyword filter so the cap counts matches.
     cases = load_cases(directory)
@@ -47,7 +49,9 @@ def convert_json_to_md(
     # Separate known and unknown dates
     known_entries = [e for e in entries if e["date"] != "Unknown"]
     unknown_entries = [e for e in entries if e["date"] == "Unknown"]
-    logger.info(f"Cases with known dates: {len(known_entries)}, unknown: {len(unknown_entries)}")
+    logger.info(
+        f"Cases with known dates: {len(known_entries)}, unknown: {len(unknown_entries)}"
+    )
 
     # Sort known entries by date descending
     if known_entries:
