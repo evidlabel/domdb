@@ -1,0 +1,124 @@
+---
+title: Getting Started
+description: Install domdb, download your first cases, and run your first query.
+---
+
+# Getting Started
+
+This guide walks you through installing domdb, downloading Danish court verdicts, and running your first search and export.
+
+## 1. Install Domdb
+
+```bash
+pip install domdb
+```
+
+Verify the installation:
+
+```bash
+domdb --version
+```
+
+## 2. Download cases
+
+Domdb stores verdicts as JSON files in `~/domdatabasen/cases` by default. To download verdicts from Domsdatabasen:
+
+```bash
+domdb download
+```
+
+Specify a custom directory with `--directory`:
+
+```bash
+domdb download --directory ./my-cases
+```
+
+## 3. Build the query index
+
+Before searching, build a metadata index for fast queries:
+
+```bash
+domdb query index
+```
+
+Re-run `query index` after downloading new cases so the index stays current.
+
+## 4. Run your first query
+
+List verdicts matching keywords:
+
+```bash
+domdb query list --keyword "trafik ulykke"
+```
+
+Filter by date range:
+
+```bash
+domdb query list --from 2024-01-01 --to 2024-12-31
+```
+
+Filter by court:
+
+```bash
+domdb query list --court "Østre Landsret"
+```
+
+Filter by subject area:
+
+```bash
+domdb query list --subject "Strafferet"
+```
+
+Search the full verdict body text (HTML/PDF):
+
+```bash
+domdb query list --keyword "arbejdsulykke" --full-text
+```
+
+Count matching verdicts without listing them:
+
+```bash
+domdb query count --keyword "trafik"
+```
+
+Search by legal paragraph reference:
+
+```bash
+domdb query count --paragraph "straffeloven § 237" --from 2015-01-01 --to 2024-12-31
+```
+
+## 5. Export your results
+
+### BibTeX (for LaTeX)
+
+```bash
+domdb output bib
+domdb output bib --output my-citations.bib --number 50
+```
+
+### Hayagriva YAML (for Typst)
+
+```bash
+domdb output hay
+domdb output hay --output citations.yml --number 50
+```
+
+### Markdown
+
+```bash
+domdb output md
+domdb output md --split-by-year
+domdb output md --keyword "trafik"
+```
+
+### EVID directory structure
+
+```bash
+domdb output j2e
+domdb output j2e --output ./evidence
+```
+
+## Next steps
+
+- Read the [CLI Reference](../reference/cli) for the full command tree.
+- Explore [Output Formats](../reference/outputs) for details on each export format.
