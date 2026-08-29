@@ -131,19 +131,6 @@ export DOMDB_PASSWORD="your_password"
 
 Default cases directory: `~/domdatabasen/cases` — override with `-d/--directory`.
 
-## Development
-
-```sh
-make          # list targets (run / docs / bib / hay / test / …)
-make run      # download latest verdicts
-make docs     # show CLI help
-make bib      # compile case cache → resources/cases.bib
-make hay      # compile case cache → resources/cases.yml (Hayagriva)
-make bib N=100 BIB_OUT=cases.bib
-make hay N=100 HAY_OUT=cases.yml
-uv run pytest
-```
-
 ## License
 MIT License
 

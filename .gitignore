@@ -14,6 +14,8 @@ __temp.*
 codefold.*
 admin.sh
 clean.sh
+Makefile
+CLAUDE.md
 
 # Generated outputs (default CLI destinations)
 resources/*.bib
