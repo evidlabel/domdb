@@ -1,0 +1,23 @@
+*.txt
+__pycache__/
+__pytest_cache__/
+scripts
+notes/
+.coverage
+.coverage.*
+reports/
+pytest.log
+__temp.*
+.vscode/
+.grk_*
+.grkrc
+codefold.*
+admin.sh
+clean.sh
+
+# Generated outputs (default CLI destinations)
+resources/*.bib
+resources/*.yml
+resources/*.yaml
+resources/*.md
+evid/

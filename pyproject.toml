@@ -1,0 +1,57 @@
+[project]
+name = "domdb"
+version = "0.1.5"
+description = "Tools for citing Danish judicial verdicts in LaTeX"
+authors = [{ name = "evid", email = "95282593+evidlabel@users.noreply.github.com" }]
+requires-python = ">=3.12"
+readme = "README.md"
+dependencies = [
+    "requests>=2.32.3,<3",
+    "bibtexparser>=1.2.0,<2",
+    "pyyaml>=6.0.0,<7",
+    "pydantic>=2.0.0,<3",
+    "pdfplumber",
+    "evid @ git+https://github.com/evidlabel/evid.git",
+    "treeparse>=0.3.1",
+    "loguru>=0.7.3",
+]
+
+[project.scripts]
+domdb = "domdb.cli.main:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0,<8",
+    "pytest-cov>=3.0.0,<4",
+    "pytest-mock>=3.10.0,<4",
+    "black>=23.0.0,<24",
+    "flake8>=6.0.0,<7",
+    "mkdocs>=1.5.3,<2",
+    "mkdocs-material>=9.5.0,<10",
+    "mkdocstrings>=0.24.0,<0.25",
+    "mkdocs-autorefs>=0.5.0,<0.6",
+    "ruff>=0.1.0,<1",
+]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/domdb", "SKILL.md"]
+
+[tool.hatch.build.targets.wheel]
+include = ["src/domdb"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"SKILL.md" = "domdb/SKILL.md"
+
+[tool.hatch.build.targets.wheel.sources]
+"src/domdb" = "domdb"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references=true
+# tool.hatch.metadata.allow-direct-references
+
+[tool.pytest.ini_options]
+addopts = "-v --cov=domdb --cov-report=term-missing"
