@@ -11,12 +11,13 @@ description: >
 
 Danish verdicts → cite. JSON cache; convert on demand.
 
-## Prior
-- schema → `domdb -j` / `domdb <path> -h` — disclose that path only; after install/upgrade/parse fail, rediscover
+## Rules
+- schema → `domdb -j` / `domdb <path> -h`; rediscover after install, upgrade, or a parse failure
 - this repo → `uv run domdb`; else `uv tool install git+https://github.com/evidlabel/domdb.git`
 - creds: `DOMDB_USER_ID` `DOMDB_PASSWORD` (apply at [domsdatabasen.dk](https://domsdatabasen.dk/spoergsmaal-og-svar/api-adgang-til-domsdatabasen/))
 - cache: `-d` (default `~/domdatabasen/cases`; `~/.domdb/config.toml`)
-- verbatim → **evid** / **precise-quoter**. Keys and exports; never retype judgment text
+- `-d` here is the verdict cache. It is unrelated to evid's db, which is always `evid --db evid`.
+- verbatim only — cite by keys and exports; never retype judgment text
 - no legal advice; spot-check `https://domsdatabasen.dk/#sag/<id>`
 
 ## Loop
@@ -36,17 +37,22 @@ No index → JSON scan. `-p` matches HTML body; `-k` metadata unless `--full-tex
 | Typst cite | `output hay` → `type: Case` |
 | LaTeX cite | `output bib` |
 | skim | `output md` (`-s` by year, `-k`, `--full-text`) |
-| label | `output j2e` → flat UUID dirs; then **evid** |
+| label | `output j2e` → flat UUID dirs (seed for the case's evidence set) |
 
-j2e: uuid5(OID, case id); skip existing; scanned PDFs logged-and-skipped. Seed only — copy into `./evid/sets/<slug>/docs/<uuid>/`, then evid label/quote/gather.
+j2e: uuid5(OID, case id); skip existing; scanned PDFs logged-and-skipped.
+
+```bash
+domdb -d <cache> output j2e …                 # flags per `domdb output j2e -h`
+cp -r <j2e_out>/<uuid> evid/sets/<slug>/docs/
+evid --db evid doc list -s <slug>             # confirm
+```
 
 ## Downstream
 - hay/bib → Typst `#bibliography` / LaTeX `\cite`
-- labelled set → evid → **notat**
-- **output-table** last
 
 ## Trap
 - cwd as cache — default is `~/domdatabasen/cases`
+- `-d` confused with evid's db flag
 - `-k` without `--full-text` misses body-only hits
 - stale index after download
 - error text `USER_ID`/`PASSWORD` — vars are `DOMDB_*`
@@ -59,3 +65,4 @@ j2e: uuid5(OID, case id); skip existing; scanned PDFs logged-and-skipped. Seed o
 - `-d` names the cache used
 - index rebuilt if queried after download
 - cites are keys/exports
+- any j2e seed appears in `evid --db evid doc list -s <slug>`
