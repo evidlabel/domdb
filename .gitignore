@@ -16,6 +16,7 @@ admin.sh
 clean.sh
 Makefile
 CLAUDE.md
+.venv
 
 # Generated outputs (default CLI destinations)
 resources/*.bib
