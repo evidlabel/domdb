@@ -5,11 +5,12 @@ from pathlib import Path
 from loguru import logger
 
 from ..converters.fields import parse_case_fields
+from .fold import fold_text
 from .loader import iter_cached_cases
 from .search import html_body_search_text, metadata_search_text
 
 INDEX_FILENAME = ".domdb-query.sqlite"
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 
 @dataclass(frozen=True)
@@ -35,6 +36,29 @@ def index_exists(directory: str) -> bool:
     return index_path(directory).is_file()
 
 
+def index_is_current(directory: str) -> bool:
+    """True when an index exists and was written by this schema version.
+
+    An index built by an older version lacks the folded columns, so queries
+    must fall back to the (correct) JSON scan instead of reading it.
+    """
+    if not index_exists(directory):
+        return False
+    try:
+        conn = _connect(directory)
+    except sqlite3.Error:
+        return False
+    try:
+        row = conn.execute(
+            "SELECT value FROM meta WHERE key = ?", ("schema_version",)
+        ).fetchone()
+    except sqlite3.Error:
+        return False
+    finally:
+        conn.close()
+    return row is not None and row["value"] == str(SCHEMA_VERSION)
+
+
 def _connect(directory: str) -> sqlite3.Connection:
     path = index_path(directory)
     conn = sqlite3.connect(path)
@@ -57,6 +81,9 @@ def _init_schema(conn: sqlite3.Connection) -> None:
             court TEXT NOT NULL,
             subjects TEXT NOT NULL,
             case_number TEXT NOT NULL,
+            author_folded TEXT NOT NULL,
+            court_folded TEXT NOT NULL,
+            subjects_folded TEXT NOT NULL,
             metadata_text TEXT NOT NULL,
             body_text TEXT NOT NULL,
             has_pdf INTEGER NOT NULL,
@@ -102,6 +129,9 @@ def build_index(directory: str) -> int:
                     fields["court"],
                     fields["subjects"],
                     fields["case_number"],
+                    fold_text(fields["author"]),
+                    fold_text(fields["court"]),
+                    fold_text(fields["subjects"]),
                     metadata_search_text(case),
                     html_body_search_text(case),
                     int(has_pdf),
@@ -113,8 +143,9 @@ def build_index(directory: str) -> int:
             """
             INSERT INTO cases (
                 id, verdict_date, headline, author, court, subjects,
-                case_number, metadata_text, body_text, has_pdf, source_file
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                case_number, author_folded, court_folded, subjects_folded,
+                metadata_text, body_text, has_pdf, source_file
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             rows,
         )
@@ -134,7 +165,7 @@ def fetch_indexed_cases(
     subject: str | None = None,
 ) -> list[IndexedCase]:
     """Return index rows pre-filtered by date, court, and subject."""
-    if not index_exists(directory):
+    if not index_is_current(directory):
         return []
 
     clauses: list[str] = []
@@ -147,12 +178,12 @@ def fetch_indexed_cases(
         clauses.append("verdict_date <= ?")
         params.append(to_date)
     if court:
-        clauses.append("(court LIKE ? OR author LIKE ?)")
-        needle = f"%{court.lower()}%"
+        clauses.append("(court_folded LIKE ? OR author_folded LIKE ?)")
+        needle = f"%{fold_text(court)}%"
         params.extend([needle, needle])
     if subject:
-        clauses.append("subjects LIKE ?")
-        params.append(f"%{subject.lower()}%")
+        clauses.append("subjects_folded LIKE ?")
+        params.append(f"%{fold_text(subject)}%")
 
     where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
     sql = f"""

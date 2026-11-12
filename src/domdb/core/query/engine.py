@@ -7,7 +7,8 @@ from loguru import logger
 from ..converters.text_utils import extract_case_text
 from ..model import ModelItem
 from .dates import case_verdict_date, date_in_range, parse_query_date
-from .index import IndexedCase, fetch_indexed_cases, index_exists
+from .fold import fold_text
+from .index import IndexedCase, fetch_indexed_cases, index_is_current
 from .loader import iter_cached_cases
 from .paragraph import ParagraphSpec, parse_paragraph_query, text_matches_paragraph
 from .search import (
@@ -179,12 +180,12 @@ def _scan_filters_match(
 
     fields = parse_case_fields(case)
     if params.court:
-        court_needle = params.court.lower()
-        hay = f"{fields['author']} {fields['court']}".lower()
+        court_needle = fold_text(params.court)
+        hay = fold_text(f"{fields['author']} {fields['court']}")
         if court_needle not in hay:
             return False
     if params.subject:
-        if params.subject.lower() not in fields["subjects"].lower():
+        if fold_text(params.subject) not in fold_text(fields["subjects"]):
             return False
     return True
 
@@ -197,7 +198,7 @@ def _iter_hits(directory: str, params: QueryParams):
     from_d = parse_query_date(params.from_date)
     to_d = parse_query_date(params.to_date)
 
-    if index_exists(directory):
+    if index_is_current(directory):
         rows = fetch_indexed_cases(
             directory,
             from_date=params.from_date,
