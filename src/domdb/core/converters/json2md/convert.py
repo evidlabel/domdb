@@ -6,6 +6,7 @@ from loguru import logger
 from .entry import create_md_entry
 from .filter import case_matches_keywords, normalize_keywords
 from ..case_load import load_cases
+from ..fields import unique_entry_id
 
 
 def convert_json_to_md(
@@ -27,24 +28,24 @@ def convert_json_to_md(
     cases = load_cases(directory)
     entries = []
     count = 0
+    seen_case_ids: set[str] = set()
+    used_keys: set[str] = set()
     for case in cases:
         if number and count >= number:
             break
         if not case_matches_keywords(case, norm_keywords, full_text=full_text):
             continue
+        if case.id and case.id in seen_case_ids:
+            logger.info(f"Skipping duplicate record for case id: {case.id}")
+            continue
+        if case.id:
+            seen_case_ids.add(case.id)
         entry = create_md_entry(case)
+        entry["id"] = unique_entry_id(entry["id"], used_keys)
         entries.append(entry)
         count += 1
 
-    # Remove duplicates based on ID
-    seen = set()
-    unique_entries = []
-    for entry in entries:
-        if entry["id"] not in seen:
-            unique_entries.append(entry)
-            seen.add(entry["id"])
-    entries = unique_entries
-    logger.info(f"After deduplication: {len(unique_entries)} unique cases")
+    logger.info(f"After deduplication: {len(entries)} unique cases")
 
     # Separate known and unknown dates
     known_entries = [e for e in entries if e["date"] != "Unknown"]

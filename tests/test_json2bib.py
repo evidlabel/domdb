@@ -22,7 +22,7 @@ def sample_case():
 def test_create_bib_entry(sample_case):
     case = ModelItem.model_validate(sample_case)
     entry = create_bib_entry(case)
-    assert entry["ID"] == "1232023"
+    assert entry["ID"] == "test123"  # keyed on the source case id
     assert entry["title"] == "Test Case"
     assert entry["date"] == "2023-01-01"
     assert entry["author"] == "Test Author"

@@ -5,6 +5,7 @@ from loguru import logger
 
 from .entry import create_bib_entry
 from ..case_load import load_cases
+from ..fields import unique_entry_id
 
 
 def convert_json_to_bib(
@@ -15,17 +16,20 @@ def convert_json_to_bib(
     database.entries = []
 
     cases = load_cases(directory, number)
+    seen_case_ids: set[str] = set()
+    used_keys: set[str] = set()
     for case in cases:
-        database.entries.append(create_bib_entry(case))
+        # Only an identical source id is a genuine duplicate (e.g. a page
+        # fetched twice). Distinct verdicts must never be collapsed.
+        if case.id and case.id in seen_case_ids:
+            logger.info(f"Skipping duplicate record for case id: {case.id}")
+            continue
+        if case.id:
+            seen_case_ids.add(case.id)
+        entry = create_bib_entry(case)
+        entry["ID"] = unique_entry_id(entry["ID"], used_keys)
+        database.entries.append(entry)
 
-    # Remove duplicate entries based on ID
-    seen = set()
-    unique_entries = []
-    for entry in database.entries:
-        if entry["ID"] not in seen:
-            unique_entries.append(entry)
-            seen.add(entry["ID"])
-    database.entries = unique_entries
     logger.info(f"After deduplication: {len(database.entries)} unique cases")
 
     database.entries = sorted(

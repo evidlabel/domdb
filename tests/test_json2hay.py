@@ -28,7 +28,7 @@ def sample_case():
 def test_create_hay_entry(sample_case):
     case = ModelItem.model_validate(sample_case)
     key, entry = create_hay_entry(case)
-    assert key == "1232023"
+    assert key == "test123"  # keyed on the source case id
     assert entry["type"] == "Case"
     assert entry["title"] == "Test Case"
     assert entry["author"] == "Test Author"
@@ -52,9 +52,9 @@ def test_convert_json_to_hay_success(tmp_path, sample_case):
     text = output_file.read_text(encoding="utf-8")
     assert text.startswith("# generated-by: domdb output hay")
     data = yaml.safe_load(text)
-    assert "1232023" in data
-    assert data["1232023"]["type"] == "Case"
-    assert data["1232023"]["title"] == "Test Case"
+    assert "test123" in data
+    assert data["test123"]["type"] == "Case"
+    assert data["test123"]["title"] == "Test Case"
 
 
 def test_convert_json_to_hay_dedupe_and_sort(tmp_path, sample_case):
@@ -78,7 +78,7 @@ def test_convert_json_to_hay_dedupe_and_sort(tmp_path, sample_case):
     assert count == 2
     data = yaml.safe_load(output_file.read_text(encoding="utf-8"))
     keys = list(data.keys())
-    assert keys == ["22024", "12020"]  # newest first
+    assert keys == ["new1", "old1"]  # newest first; duplicate id dropped
 
 
 def test_convert_json_to_hay_no_files(tmp_path):

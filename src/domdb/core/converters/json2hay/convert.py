@@ -6,6 +6,7 @@ from loguru import logger
 
 from .entry import create_hay_entry
 from ..case_load import load_cases
+from ..fields import unique_entry_id
 
 
 def convert_json_to_hay(
@@ -14,11 +15,17 @@ def convert_json_to_hay(
     """Convert JSON case files to Hayagriva YAML format."""
     cases = load_cases(directory, number)
     entries: dict[str, dict] = {}
+    seen_case_ids: set[str] = set()
+    used_keys: set[str] = set()
 
     for case in cases:
+        if case.id and case.id in seen_case_ids:
+            logger.info(f"Skipping duplicate record for case id: {case.id}")
+            continue
+        if case.id:
+            seen_case_ids.add(case.id)
         key, entry = create_hay_entry(case)
-        if key not in entries:
-            entries[key] = entry
+        entries[unique_entry_id(key, used_keys)] = entry
 
     logger.info(f"After deduplication: {len(entries)} unique cases")
 
