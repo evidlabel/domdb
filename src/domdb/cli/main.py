@@ -1,3 +1,6 @@
+import sys
+from collections.abc import Sequence
+
 from treeparse import cli, command, group, option
 from treeparse.utils.color_config import color_theme
 
@@ -8,26 +11,82 @@ from .md import md
 from .j2e import j2e
 from .query import query_count, query_index, query_list
 
+DEFAULT_CASES_DIRECTORY = "~/domdatabasen/cases"
+
+
+def directory_option() -> option:
+    """The ``-d/--directory`` option, shared by every command that reads a cache.
+
+    treeparse only passes inheritable options down to sub-group parsers, not to
+    leaf commands, and an option re-declared by an intermediate parser overwrites
+    the value parsed at the root. ``normalize_argv`` therefore relocates every
+    ``-d`` to the end of the argument vector, where the leaf command -- which
+    declares this same option -- parses it. Both documented call forms
+    (``domdb -d X output bib`` and ``domdb output bib -d X``) end up identical.
+    """
+    return option(
+        flags=["-d", "--directory"],
+        help="Directory holding JSON case files (read/write)",
+        arg_type=str,
+        default=DEFAULT_CASES_DIRECTORY,
+        inherit=True,
+    )
+
+
+def normalize_argv(argv: Sequence[str]) -> list[str]:
+    """Move ``-d/--directory`` to the end of argv so the leaf command sees it.
+
+    Accepts ``-d X``, ``-dX``, ``--directory X`` and ``--directory=X`` anywhere
+    on the command line. A trailing ``-d`` without a value is left in place so
+    argparse reports the usual "expected one argument" error.
+    """
+    rest: list[str] = []
+    value: str | None = None
+
+    i = 0
+    while i < len(argv):
+        arg = argv[i]
+        if arg == "--":
+            rest.extend(argv[i:])
+            break
+        if arg in ("-d", "--directory"):
+            if i + 1 >= len(argv):
+                rest.append(arg)
+                i += 1
+                continue
+            value = argv[i + 1]
+            i += 2
+            continue
+        if arg.startswith("--directory="):
+            value = arg.split("=", 1)[1]
+            i += 1
+            continue
+        if arg.startswith("-d") and not arg.startswith("--") and len(arg) > 2:
+            value = arg[2:]
+            i += 1
+            continue
+        rest.append(arg)
+        i += 1
+
+    if value is not None:
+        rest.append(f"--directory={value}")
+    return rest
+
+
 app = cli(
     name="domdb",
     help="Tools for citing Danish judicial verdicts using BibTeX.",
     show_defaults=True,
     theme=color_theme.GITHUB,
     context_settings={"help_option_names": ["-h", "--help"]},
-    options=[
-        option(
-            flags=["-d", "--directory"],
-            help="Directory to save JSON case files",
-            arg_type=str,
-            default="~/domdatabasen/cases",
-        ),
-    ],
+    options=[directory_option()],
 )
 
 download_cmd = command(
     name="download",
     help="Download verdicts from domsdatabasen.dk.",
     callback=download,
+    options=[directory_option()],
 )
 app.commands.append(download_cmd)
 
@@ -41,6 +100,7 @@ bib_cmd = command(
     help="Convert JSON case files to BibTeX format.",
     callback=bib,
     options=[
+        directory_option(),
         option(
             flags=["-n", "--number"],
             help="Maximum number of verdicts to process",
@@ -62,6 +122,7 @@ hay_cmd = command(
     help="Convert JSON case files to Hayagriva YAML format (for Typst).",
     callback=hay,
     options=[
+        directory_option(),
         option(
             flags=["-n", "--number"],
             help="Maximum number of verdicts to process",
@@ -83,6 +144,7 @@ md_cmd = command(
     help="Convert JSON case files to Markdown format.",
     callback=md,
     options=[
+        directory_option(),
         option(
             flags=["-n", "--number"],
             help="Maximum number of verdicts to process",
@@ -124,6 +186,7 @@ j2e_cmd = command(
     help="Convert JSON case files to EVID directory structure.",
     callback=j2e,
     options=[
+        directory_option(),
         option(
             flags=["-n", "--number"],
             help="Maximum number of cases to process",
@@ -143,6 +206,7 @@ output_cmd.commands.append(j2e_cmd)
 app.subgroups.append(output_cmd)
 
 _query_options = [
+    directory_option(),
     option(
         flags=["-k", "--keyword"],
         dest="keywords",
@@ -246,6 +310,7 @@ app.subgroups.append(query_cmd)
 
 
 def main():
+    sys.argv = [sys.argv[0], *normalize_argv(sys.argv[1:])]
     app.run()
 
 
