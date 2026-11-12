@@ -38,7 +38,7 @@ def parse_paragraph_query(text: str) -> ParagraphSpec:
         law = _normalize_law(law_match.group(1))
 
     section_match = re.search(
-        r"§\s*(\d+)(?:\s+([a-z]))?(?=\s*(?:,|stk\.|nr\.|$))",
+        r"§\s*(\d+)(?:\s*([a-z]))?(?=\s*(?:,|stk\.|nr\.|$))",
         text,
         re.IGNORECASE,
     )
@@ -68,15 +68,17 @@ def paragraph_pattern(spec: ParagraphSpec) -> re.Pattern[str]:
 
     if spec.law:
         law_stem = re.escape(spec.law.rstrip("en"))
-        chunks.append(rf"{law_stem}(?:en|ens|es)?\s*§\s*{section}")
+        chunks.append(rf"{law_stem}(?:en|ens|es)?\s*§\s*{section}(?!\d)")
     else:
-        chunks.append(rf"§\s*{section}")
+        chunks.append(rf"§\s*{section}(?!\d)")
 
     pattern = chunks[0]
     if spec.subsection:
-        pattern += rf"(?:\s*,\s*|\s+)stk\.\s*{re.escape(spec.subsection)}"
+        pattern += (
+            rf"(?:\s*,\s*|\s+)stk\.\s*{re.escape(spec.subsection)}(?!\d)"
+        )
         if spec.item:
-            pattern += rf"(?:\s*,\s*|\s+)nr\.\s*{re.escape(spec.item)}"
+            pattern += rf"(?:\s*,\s*|\s+)nr\.\s*{re.escape(spec.item)}(?!\d)"
 
     return re.compile(pattern, re.IGNORECASE)
 
