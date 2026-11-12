@@ -14,7 +14,12 @@ def case_verdict_date(case: ModelItem) -> date | None:
     raw = extract_verdict_date(case)
     if not raw or raw == "Unknown":
         return None
-    return datetime.strptime(raw, "%Y-%m-%d").date()
+    try:
+        return datetime.strptime(raw, "%Y-%m-%d").date()
+    except ValueError:
+        # Unparseable raw value kept by parse_case_fields: treat as undated
+        # rather than aborting every scan query in a date range.
+        return None
 
 
 def date_in_range(

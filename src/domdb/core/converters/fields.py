@@ -1,6 +1,8 @@
 import re
 from datetime import datetime
 
+from loguru import logger
+
 from ..model import ModelItem
 
 
@@ -42,6 +44,23 @@ def unique_entry_id(base: str, used: set[str]) -> str:
     return disambiguated
 
 
+def verdict_date_from_datetime(value: str) -> str | None:
+    """Return the ISO date part of an API ``verdictDateTime`` value.
+
+    The API emits fractional seconds (``2024-05-14T09:30:00.000``), offsets and
+    occasionally ``Z``; ``fromisoformat`` handles all three, where the old
+    ``strptime("%Y-%m-%dT%H:%M:%S")`` rejected them and silently produced
+    "Unknown". A leading ISO date is salvaged from otherwise unparseable values.
+    """
+    text = value.strip()
+    try:
+        return datetime.fromisoformat(text).strftime("%Y-%m-%d")
+    except ValueError:
+        logger.warning(f"Could not parse verdictDateTime as ISO 8601: {value!r}")
+        match = re.match(r"(\d{4}-\d{2}-\d{2})", text)
+        return match.group(1) if match else None
+
+
 def parse_case_fields(case: ModelItem) -> dict:
     """Extract common display fields from a ModelItem."""
     author = case.author or case.officeName or "Domstol"
@@ -56,15 +75,24 @@ def parse_case_fields(case: ModelItem) -> dict:
     )
 
     verdict_date = "Unknown"
+    unparsed: str | None = None
     for doc in case.documents or []:
-        if doc.verdictDateTime and isinstance(doc.verdictDateTime, str):
-            try:
-                verdict_date = datetime.strptime(
-                    doc.verdictDateTime, "%Y-%m-%dT%H:%M:%S"
-                ).strftime("%Y-%m-%d")
-                break
-            except ValueError:
-                continue
+        value = doc.verdictDateTime
+        if not value or not isinstance(value, str):
+            continue
+        parsed = verdict_date_from_datetime(value)
+        if parsed:
+            verdict_date = parsed
+            break
+        if unparsed is None:
+            unparsed = value.strip()
+    else:
+        # Nothing parsed: keep the original string rather than losing the date.
+        if unparsed is not None:
+            logger.warning(
+                f"Keeping unparseable verdictDateTime {unparsed!r} for case {case.id!r}"
+            )
+            verdict_date = unparsed
 
     case_number = case.courtCaseNumber or "unknown"
     entry_id = entry_id_for(case)
